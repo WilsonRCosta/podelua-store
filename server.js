@@ -138,10 +138,16 @@ app.get('/api/session/:id', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🌙 Pó de Lua a correr em http://localhost:${PORT}`);
-  if (!hasStripeKey) {
-    console.log('   ⚠️  STRIPE_SECRET_KEY não definida — o checkout ficará em modo de aviso.');
-    console.log('   Copia .env.example para .env e adiciona as tuas chaves de teste Stripe.\n');
-  }
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n🌙 Pó de Lua a correr em http://localhost:${PORT}`);
+
+    if (!hasStripeKey) {
+      console.log(
+          '   ⚠️  STRIPE_SECRET_KEY não definida — o checkout ficará em modo de aviso.'
+      );
+    }
+  });
+}
+
+module.exports = app;
