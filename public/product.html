@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="pageTitle">Pó de Lua</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<div id="header-mount"></div>
+
+<main class="container product-detail-wrap">
+    <div id="detailLoading">A carregar peça…</div>
+    <div class="product-detail" id="productDetail" style="display:none;">
+        <div id="detailCarouselMount"></div>
+        <div class="detail-info">
+            <span class="card-category" id="detailCategory"></span>
+            <h1 id="detailName"></h1>
+            <p class="card-price" id="detailPrice"></p>
+            <p id="detailShortDesc"></p>
+            <div id="detailLongDesc" class="long-desc"></div>
+            <div id="detailSwatchesMount"></div>
+            <button id="detailAddBtn" class="btn btn-primary">Adicionar ao carrinho</button>
+        </div>
+    </div>
+</main>
+
+<div id="cart-drawer-mount"></div>
+
+<script src="/js/partials.js"></script>
+<script src="/js/products.js"></script>
+<script src="/js/cart.js"></script>
+<script src="/js/drawer.js"></script>
+<script src="/js/product.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Encomenda confirmada — Pó de Lua</title>
+<link rel="icon" href="/images/mark.png" />
+<link rel="stylesheet" href="/css/styles.css" />
+<style>
+  .confirm-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .confirm-card {
+    max-width: 480px;
+    width: 100%;
+    background: var(--cream-soft);
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    padding: 44px 36px;
+    text-align: center;
+  }
+  .confirm-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: var(--clay);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cream-soft);
+  }
+  .confirm-card h1 {
+    font-family: var(--display),serif;
+    font-weight: 500;
+    font-size: 1.9rem;
+    margin: 0 0 10px;
+  }
+  .confirm-card p { color: var(--ink-muted); line-height: 1.6; margin: 0 0 22px; }
+  .order-lines { text-align: left; margin: 22px 0; border-top: 1px solid var(--line); padding-top: 18px; }
+  .order-line { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 6px 0; }
+  .order-total { display: flex; justify-content: space-between; font-family: var(--display),serif; font-size: 1.15rem; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 8px; }
+</style>
+</head>
+<body>
+  <div class="confirm-wrap">
+    <div class="confirm-card">
+      <div class="confirm-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h1>Obrigado pela tua compra</h1>
+      <p id="confirmMsg">A confirmar a tua encomenda…</p>
+      <div class="order-lines" id="orderLines"></div>
+      <a href="/" class="btn btn-primary" style="width:100%; justify-content:center;">Voltar à loja</a>
+    </div>
+  </div>
+
+<script>
+(async function () {
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  const msgEl = document.getElementById('confirmMsg');
+  const linesEl = document.getElementById('orderLines');
+
+  // Successful checkout also clears the local cart, since payment is done.
+  try { localStorage.removeItem('podelua-cart-v1'); } catch (e) {}
+
+  if (!sessionId) {
+    msgEl.textContent = 'A tua encomenda foi recebida.';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/session/' + encodeURIComponent(sessionId));
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro');
+
+    msgEl.textContent = data.email
+      ? 'Enviámos a confirmação para ' + data.email + '.'
+      : 'A tua encomenda foi confirmada.';
+
+    let html = '';
+    (data.items || []).forEach((item) => {
+      html += '<div class="order-line"><span>' + item.quantity + '× ' + item.name + '</span><span>' +
+        (item.amount / 100).toLocaleString('pt-PT', { style: 'currency', currency: (data.currency || 'eur').toUpperCase() }) +
+        '</span></div>';
+    });
+    html += '<div class="order-total"><span>Total</span><span>' +
+      (data.amount_total / 100).toLocaleString('pt-PT', { style: 'currency', currency: (data.currency || 'eur').toUpperCase() }) +
+      '</span></div>';
+    linesEl.innerHTML = html;
+  } catch (e) {
+    msgEl.textContent = 'A tua encomenda foi recebida.';
+  }
+})();
+</script>
+</body>
+</html>
