@@ -1,14 +1,3 @@
-// Renders the CSS-clip-path "material swatch" used in place of a product
-// photo. Each product picks a `shape` (silhouette) and `tone` (gradient).
-function renderCardArt(product) {
-  return `
-    <div class="card-art tone-${product.tone} shape-${product.shape}">
-      <div class="form"></div>
-      <div class="grain"></div>
-    </div>
-  `;
-}
-
 // Renders a swipeable image carousel
 function renderCarousel(product, size = 'card') {
   const images = product.images && product.images.length
@@ -58,8 +47,15 @@ function renderColorSwatches(product) {
   `;
 }
 
-function formatPrice(cents) {
-  return (cents / 100).toLocaleString('pt-PT', {
+function formatPrice(price) {
+  const value = Number(price);
+
+  if (!Number.isFinite(value)) {
+    console.error('Invalid product price:', price);
+    return '—';
+  }
+
+  return value.toLocaleString('pt-PT', {
     style: 'currency',
     currency: 'EUR',
   });

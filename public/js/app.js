@@ -2,7 +2,7 @@
   'use strict';
 
   let PRODUCTS = [];
-  let activeCategory = 'todos';
+  let activeCategory = 'all';
 
   const grid = document.getElementById('productGrid');
   const categoryBar = document.getElementById('categoryBar');
@@ -13,9 +13,9 @@
   // ---------- rendering: product grid ----------
   function renderGrid() {
     const items =
-        activeCategory === 'todos'
+        activeCategory === 'all'
             ? PRODUCTS
-            : PRODUCTS.filter((p) => p.category === activeCategory);
+            : PRODUCTS.filter((p) => p.categories.includes(activeCategory));
 
     if (items.length === 0) {
       grid.innerHTML = `<div class="empty-state">Sem peças nesta categoria por agora.</div>`;
@@ -29,7 +29,11 @@
           ${renderCarousel(p, 'card')}
           <span class="card-art-hint">Ver peça</span>
           <div class="card-body">
-            <span class="card-category">${CATEGORY_LABELS[p.category] || p.category}</span>
+            <span class="card-category">
+                ${p.categories
+                            .map((category) => CATEGORY_LABELS[category] || category)
+                            .join(' · ')}
+            </span>
             <h3 class="card-name">${p.name}</h3>
             <p class="card-desc">${p.description}</p>
             ${renderColorSwatches(p)}
@@ -109,14 +113,13 @@
 
   document.addEventListener('chrome:ready', async () => {
     try {
-      const res = await fetch('/api/products');
-      PRODUCTS = await res.json();
+      PRODUCTS = await fetchProducts();
     } catch (e) {
       grid.innerHTML =
-          '<div class="empty-state">Não foi possível carregar a loja. Confirma que o servidor está a correr (npm start).</div>';
+          '<div class="empty-state">Não foi possível carregar a loja.</div>';
       return;
     }
-    initCartDrawer(PRODUCTS); // drawer.js — the ONLY renderCart now
+    initCartDrawer(PRODUCTS);
     renderGrid();
   });
 })();

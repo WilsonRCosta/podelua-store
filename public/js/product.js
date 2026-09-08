@@ -19,9 +19,7 @@
         console.log('[product.js] chrome:ready fired');
         let products;
         try {
-            const res = await fetch('/api/products');
-            if (!res.ok) throw new Error(`/api/products devolveu ${res.status}`);
-            products = await res.json();
+            products = await fetchProducts();
             console.log('[product.js] loaded', products.length, 'products');
         } catch (e) {
             console.error('[product.js] failed to fetch products:', e);
@@ -59,7 +57,9 @@
 
         document.getElementById('pageTitle').textContent = `${product.name} — Pó de Lua`;
         document.getElementById('detailCategory').textContent =
-            CATEGORY_LABELS[product.category] || product.category;
+            product.categories
+                .map((category) => CATEGORY_LABELS[category] || category)
+                .join(' · ');
         document.getElementById('detailName').textContent = product.name;
         document.getElementById('detailPrice').textContent = formatPrice(product.price);
         document.getElementById('detailShortDesc').textContent = product.description;

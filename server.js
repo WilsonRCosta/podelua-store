@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,10 +11,82 @@ const hasStripeKey = !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRE
 const stripe = hasStripeKey ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null;
 const isPublicHttps = DOMAIN.startsWith('https://');
 
-const PRODUCTS = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'data', 'products.json'), 'utf-8')
-);
-const PRODUCTS_BY_ID = Object.fromEntries(PRODUCTS.map((p) => [p.id, p]));
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+const AIRTABLE_TABLE = process.env.AIRTABLE_PRODUCTS_TABLE;
+const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
+
+// ---------- Airtable helpers ----------
+
+// Maps one Airtable record into the shape the storefront and checkout expect.
+function mapRecord(record) {
+  const f = record.fields;
+
+  const colors = (f.colors || '')
+      .split(',')
+      .map((c) => c.trim())
+      .filter(Boolean);
+
+  const images = (f.images || []).map((img, i) => ({
+    url: img.url,
+    color: colors[i] || null,
+  }));
+
+  return {
+    id: f.id,
+    name: f.name,
+    categories: (f.categories || []),
+    price: f.price,
+    description: f.description || '',
+    longDescription: f.long_description || '',
+    images,
+  };
+}
+
+// Fetches every active product, paginating past Airtable's 100-record page limit.
+async function fetchProducts() {
+  let allRecords = [];
+  let offset = null;
+
+  do {
+    const url = new URL(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`);
+    url.searchParams.set('filterByFormula', '{active} = 1');
+    if (offset) url.searchParams.set('offset', offset);
+
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+    if (!res.ok) throw new Error(`Airtable respondeu ${res.status}`);
+    const data = await res.json();
+    allRecords = allRecords.concat(data.records);
+    offset = data.offset;
+  } while (offset);
+
+  return allRecords.map(mapRecord);
+}
+
+async function fetchProductById(id) {
+  const url = new URL(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`);
+  url.searchParams.set('filterByFormula', `{id} = '${id}'`);
+
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+  if (!res.ok) throw new Error(`Airtable respondeu ${res.status}`);
+  const data = await res.json();
+  const record = data.records[0];
+  return record ? mapRecord(record) : null;
+}
+
+// ---------- lightweight cache ----------
+// Avoids hitting Airtable on every single page load, while still picking up
+// edits within a short window instead of needing a server restart.
+let productsCache = { data: null, fetchedAt: 0 };
+const CACHE_TTL_MS = 30 * 1000; // 30 seconds
+
+async function getCachedProducts() {
+  const isFresh = productsCache.data && Date.now() - productsCache.fetchedAt < CACHE_TTL_MS;
+  if (isFresh) return productsCache.data;
+
+  const products = await fetchProducts();
+  productsCache = { data: products, fetchedAt: Date.now() };
+  return products;
+}
 
 app.use(cors());
 app.use(express.json());
@@ -23,25 +94,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- API ---------------------------------------------------------------
 
-// Product catalog, read by the storefront on load.
-app.get('/api/products', (req, res) => {
-  res.json(PRODUCTS);
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await getCachedProducts();
+    res.json(products);
+  } catch (err) {
+    console.error('Airtable fetch error:', err.message);
+    res.status(500).json({ error: 'Não foi possível carregar os produtos.' });
+  }
 });
 
-// Lets the frontend know whether Stripe test keys have been configured,
-// so the UI can show a friendly setup notice instead of a broken button.
 app.get('/api/config', (req, res) => {
   res.json({ stripeConfigured: hasStripeKey });
 });
 
-// Creates a Stripe Checkout Session from a cart of { id, qty } pairs.
-// Prices are always looked up server-side from products.json, never trusted
-// from the client, so nobody can tamper with amounts in the browser.
 app.post('/api/create-checkout-session', async (req, res) => {
   if (!hasStripeKey) {
     return res.status(400).json({
-      error:
-        'Stripe ainda não está configurado. Adiciona a tua STRIPE_SECRET_KEY ao ficheiro .env (vê .env.example).',
+      error: 'Stripe ainda não está configurado. Adiciona a tua STRIPE_SECRET_KEY ao ficheiro .env (vê .env.example).',
     });
   }
 
@@ -53,8 +123,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     const line_items = [];
     for (const item of items) {
-      const product = PRODUCTS_BY_ID[item.id];
-      const qty = Math.max(1, Math.min(20, parseInt(item.qty, 10) || 1));
+      const product = await fetchProductById(item.id);
+      const qty = Math.max(1, Math.min(5, parseInt(item.qty, 10) || 1));
       if (!product) continue;
 
       const productData = {
@@ -63,7 +133,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         metadata: { id: product.id },
       };
       if (isPublicHttps && product.images && product.images[0]) {
-        const src = product.images[0];
+        const src = product.images[0].url;
         productData.images = [src.startsWith('http') ? src : `${DOMAIN}${src}`];
       }
 
@@ -71,7 +141,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         quantity: qty,
         price_data: {
           currency: 'eur',
-          unit_amount: product.price,
+          unit_amount: Math.round(product.price * 100),
           product_data: productData,
         },
       });
@@ -115,13 +185,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
-// Lets success.html show a short order confirmation summary.
 app.get('/api/session/:id', async (req, res) => {
   if (!hasStripeKey) return res.status(400).json({ error: 'Stripe não configurado.' });
   try {
-    const session = await stripe.checkout.sessions.retrieve(req.params.id, {
-      expand: ['line_items'],
-    });
+    const session = await stripe.checkout.sessions.retrieve(req.params.id, { expand: ['line_items'] });
     res.json({
       email: session.customer_details?.email || null,
       amount_total: session.amount_total,
@@ -140,12 +207,13 @@ app.get('/api/session/:id', async (req, res) => {
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`\n🌙 Pó de Lua a correr em http://localhost:${PORT}`);
+    console.log(`\n🌙 Pó de Lua listening on http://localhost:${PORT}`);
 
     if (!hasStripeKey) {
-      console.log(
-          '   ⚠️  STRIPE_SECRET_KEY não definida — o checkout ficará em modo de aviso.'
-      );
+      console.log('   ⚠️  STRIPE_SECRET_KEY not defined — checkout will be in warning mode.');
+    }
+    if (!AIRTABLE_BASE_ID || !AIRTABLE_TOKEN) {
+      console.log('   ⚠️  Airtable not configured — /api/products will fail.');
     }
   });
 }
