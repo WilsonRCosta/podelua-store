@@ -94,4 +94,5 @@ function moveCarousel(carouselId, delta, absoluteIndex) {
 const CATEGORY_LABELS = {
   decoracao: 'Decoração',
   bijutaria: 'Bijutaria',
+  bebe: 'Bebé',
 };
