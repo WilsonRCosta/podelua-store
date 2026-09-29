@@ -830,6 +830,10 @@ button {
 }
 .carousel-arrow.prev { left: 10px; }
 .carousel-arrow.next { right: 10px; }
+.carousel-arrow:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: 2px;
+}
 .carousel-dots {
   position: absolute;
   bottom: 10px;
@@ -877,6 +881,24 @@ button {
   border-radius: var(--radius-card);
   position: sticky;
   top: 100px; /* clears the sticky header */
+}
+
+.carousel-dots-row {
+  display: flex;
+  justify-content: center;
+  padding: 14px 0 4px;
+}
+.carousel-dots-row .carousel-dots {
+  position: static;
+  transform: none;
+  left: auto;
+  bottom: auto;
+}
+.carousel-dots-row .dot {
+  background: var(--line); /* was designed for on-photo contrast; needs a visible color on cream now */
+}
+.carousel-dots-row .dot.active {
+  background: var(--gold);
 }
 
 .detail-info {
@@ -974,7 +996,6 @@ button {
   box-shadow: 0 0 0 2px var(--cream-soft), 0 0 0 4px var(--charcoal);
 }
 
-/* larger swatches on the product detail page */
 .detail-info .color-swatches {
   margin: 4px 0 22px;
   gap: 10px;
@@ -996,4 +1017,89 @@ button {
   border-radius: 50%;
   box-shadow: 0 0 0 1px var(--line) inset;
   margin: 2px 0 4px;
+}
+
+/* ---------------------------------------------------------------
+   Mobile refinements — carousel, swatches, header, cart drawer
+--------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .carousel-arrow {
+    opacity: 0.65;
+    width: 32px;
+    height: 32px;
+  }
+
+  .card-art-hint {
+    display: none;
+  }
+
+  .color-swatch {
+    width: 24px;
+    height: 24px;
+  }
+  .detail-info .color-swatch {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-inner {
+    padding: 12px 16px;
+  }
+  .brand-word {
+    font-size: 1.15rem;
+  }
+  .brand img {
+    height: 34px;
+  }
+
+  .cart-btn span:not(.cart-count) {
+    display: none;
+  }
+  .cart-btn {
+    padding: 9px 10px;
+  }
+
+  .carousel-dots .dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .color-swatches {
+    gap: 6px;
+  }
+  .color-swatch {
+    width: 22px;
+    height: 22px;
+  }
+
+  .qty-stepper button {
+    width: 28px;
+    height: 28px;
+  }
+
+  .cart-header h2 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .product-grid {
+    gap: 10px;
+  }
+  .card-body {
+    padding: 12px 12px 14px;
+  }
+  .card-name {
+    font-size: 1rem;
+  }
+  .card-price {
+    font-size: 1.02rem;
+  }
+  .add-btn {
+    width: 36px;
+    height: 36px;
+  }
 }
