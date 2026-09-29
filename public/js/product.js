@@ -62,7 +62,6 @@
                 .join(' · ');
         document.getElementById('detailName').textContent = product.name;
         document.getElementById('detailPrice').textContent = formatPrice(product.price);
-        document.getElementById('detailShortDesc').textContent = product.description;
         document.getElementById('detailLongDesc').innerHTML =
             (product.longDescription || product.description).replace(/\n/g, '<br>');
 
