@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finalizar compra — Pó de Lua</title>
+    <link rel="icon" href="/images/mark.png" />
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<div id="header-mount"></div>
+
+<main class="container checkout-wrap">
+    <h1 class="checkout-title">Finalizar compra</h1>
+
+    <div class="checkout-grid">
+        <div id="checkoutSummary" class="checkout-summary">A carregar carrinho…</div>
+
+        <form id="checkoutForm" class="checkout-form">
+            <label class="custom-field">
+                <span>Nome</span>
+                <input type="text" name="name" required />
+            </label>
+            <label class="custom-field">
+                <span>Email</span>
+                <input type="email" name="email" required />
+            </label>
+            <label class="custom-field">
+                <span>Telefone</span>
+                <input type="tel" name="phone" />
+            </label>
+            <label class="custom-field">
+                <span>Morada de envio</span>
+                <input type="text" name="address" placeholder="Rua, número, código postal, cidade" required />
+            </label>
+
+            <fieldset class="shipping-fieldset">
+                <legend>Envio</legend>
+                <label class="shipping-option">
+                    <input type="radio" name="shippingMethod" value="normal" checked />
+                    <span>Envio normal (3-5 dias úteis) — 4,50 €</span>
+                </label>
+                <label class="shipping-option">
+                    <input type="radio" name="shippingMethod" value="pickup" />
+                    <span>Levantamento no atelier — Grátis</span>
+                </label>
+            </fieldset>
+
+            <button type="submit" class="btn btn-primary" id="submitOrderBtn" style="width:100%; justify-content:center;">
+                Confirmar encomenda
+            </button>
+        </form>
+    </div>
+
+    <div id="checkoutConfirmation" class="checkout-confirmation" style="display:none;"></div>
+</main>
+
+<div id="cart-drawer-mount"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/partials.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/cart.js"></script>
+<script src="/js/drawer.js"></script>
+<script src="/js/checkout.js"></script>
+</body>
+</html>

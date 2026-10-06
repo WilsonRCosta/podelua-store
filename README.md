@@ -2,7 +2,7 @@
 
 Loja online de cerâmica artesanal, decoração e bijutaria.
 
-Frontend responsivo em HTML/CSS/JavaScript, backend em Node/Express, catálogo gerido através do Airtable e pagamentos através da Stripe.
+Frontend responsivo em HTML/CSS/JavaScript, backend em Node/Express, catálogo gerido através do Airtable.
 
 ## Estrutura
 
@@ -41,14 +41,10 @@ Preenche:
 
 ```env
 PORT=3000
-DOMAIN=http://localhost:3000
 
 AIRTABLE_BASE_ID=...
 AIRTABLE_PRODUCTS_TABLE=...
 AIRTABLE_TOKEN=...
-
-STRIPE_SECRET_KEY=...
-STRIPE_PUBLISHABLE_KEY=...
 ```
 
 ## Desenvolvimento
@@ -82,18 +78,6 @@ Cada produto deve ter:
 Apenas produtos com `active` ativado aparecem na loja.
 
 As imagens são armazenadas diretamente como attachments no Airtable.
-
-## Stripe
-
-O checkout utiliza Stripe Checkout.
-
-Para testes, usa uma `sk_test_...` como `STRIPE_SECRET_KEY`.
-
-Cartão de teste:
-
-```text
-4242 4242 4242 4242
-```
 
 ## Deploy
 

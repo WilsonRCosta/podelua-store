@@ -21,9 +21,6 @@ function cartKey(id, color, customValues) {
     return `${id}::${color || 'default'}`;
 }
 
-
-let stripeConfigured = false;
-
 function showToast(msg) {
     const toastEl = document.getElementById('toast');
     if (!toastEl) return;
@@ -31,16 +28,6 @@ function showToast(msg) {
     toastEl.classList.add('show');
     clearTimeout(showToast._timer);
     showToast._timer = setTimeout(() => toastEl.classList.remove('show'), 2200);
-}
-
-async function loadStripeConfig() {
-    try {
-        const res = await fetch('/api/config');
-        const config = await res.json();
-        stripeConfigured = !!config.stripeConfigured;
-    } catch (e) {
-        stripeConfigured = false;
-    }
 }
 
 function addToCart(id, color, showFeedback = true, customValues = []) {
@@ -75,43 +62,4 @@ function removeFromCart(key) {
     delete cart[key];
     saveCart(cart);
     if (typeof renderCart === 'function') renderCart();
-}
-
-async function startCheckout() {
-    const checkoutBtn = document.getElementById('checkoutBtn');
-    const checkoutWarning = document.getElementById('checkoutWarning');
-    const items = Object.values(cart)
-        .filter((line) => line.qty > 0)
-        .map((line) => ({ id: line.id, qty: line.qty, customValues: line.customValues || [] }));
-
-    if (items.length === 0) return;
-
-    if (!stripeConfigured) {
-        if (checkoutWarning) checkoutWarning.classList.add('show');
-        return;
-    }
-
-    if (checkoutBtn) {
-        checkoutBtn.disabled = true;
-        checkoutBtn.innerHTML = '<span>A abrir pagamento…</span>';
-    }
-
-    try {
-        const res = await fetch('/api/create-checkout-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items }),
-        });
-        const data = await res.json();
-        if (!res.ok || !data.url) {
-            throw new Error(data.error || 'Erro desconhecido');
-        }
-        window.location.href = data.url;
-    } catch (err) {
-        showToast(err.message || 'Não foi possível iniciar o pagamento.');
-        if (checkoutBtn) {
-            checkoutBtn.disabled = false;
-            checkoutBtn.innerHTML = '<span>Finalizar compra</span>';
-        }
-    }
 }

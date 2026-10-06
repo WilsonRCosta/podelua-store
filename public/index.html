@@ -93,7 +93,7 @@
     <div>
       <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 21s-7-4.6-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.4-9.5 9-9.5 9Z"/></svg>
       <h3>Pagamento seguro</h3>
-      <p>Checkout processado pela Stripe — os teus dados nunca passam por nós.</p>
+      <p>Checkout processado de forma segura via email com os dados de pagamento.</p>
     </div>
   </div>
 </section>
@@ -126,7 +126,6 @@
     </div>
     <div class="footer-bottom">
       <span>© <span id="year"></span> Pó de Lua. Feito à mão em Portugal.</span>
-      <span>Pagamentos processados com segurança pela Stripe.</span>
     </div>
   </div>
 </footer>
@@ -141,9 +140,6 @@
   </div>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-footer">
-    <div class="checkout-warning" id="checkoutWarning">
-      A Stripe ainda não está configurada. Adiciona a tua STRIPE_SECRET_KEY ao ficheiro .env (vê .env.example).
-    </div>
     <div class="cart-subtotal">
       <span>Subtotal</span>
       <span id="cartSubtotal">0,00 €</span>
@@ -152,10 +148,6 @@
     <button class="checkout-btn" id="checkoutBtn">
       <span>Finalizar compra</span>
     </button>
-    <div class="stripe-note">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <span>Pagamento seguro via Stripe</span>
-    </div>
   </div>
 </aside>
 

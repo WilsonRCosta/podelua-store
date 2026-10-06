@@ -29,9 +29,11 @@ function initCartDrawer(products) {
         if (remove) removeFromCart(remove.dataset.remove);
     });
 
-    checkoutBtn.addEventListener('click', startCheckout);
+    checkoutBtn.addEventListener('click', () => {
+        window.location.href = '/checkout.html';
+    });
 
-    loadStripeConfig().then(renderCart);
+    renderCart();
 }
 
 function openCartDrawer() {

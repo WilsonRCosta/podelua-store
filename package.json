@@ -1,7 +1,7 @@
 {
   "name": "podelua-store",
   "version": "1.0.0",
-  "description": "Pó de Lua — loja de cerâmica artesanal, decoração e bijutaria, com checkout Stripe.",
+  "description": "Pó de Lua — loja de cerâmica artesanal, decoração e bijutaria.",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -12,6 +12,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "stripe": "^16.8.0"
+    "nodemailer": "^10.0.15"
   }
 }
