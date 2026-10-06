@@ -122,7 +122,7 @@
 
   document.addEventListener('chrome:ready', async () => {
     try {
-      PRODUCTS = await fetchProducts();
+      PRODUCTS = await getProducts();
     } catch (e) {
       grid.innerHTML =
           '<div class="empty-state">Não foi possível carregar a loja.</div>';

@@ -19,7 +19,7 @@
         console.log('[product.js] chrome:ready fired');
         let products;
         try {
-            products = await fetchProducts();
+            products = await getProducts();
             console.log('[product.js] loaded', products.length, 'products');
         } catch (e) {
             console.error('[product.js] failed to fetch products:', e);

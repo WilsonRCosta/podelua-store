@@ -9,7 +9,7 @@
 
     document.addEventListener('chrome:ready', async () => {
         try {
-            PRODUCTS = await fetchProducts();
+            PRODUCTS = await getProducts();
         } catch (e) {
             document.getElementById('checkoutSummary').innerHTML = '<p>Não foi possível carregar o carrinho.</p>';
             return;
@@ -74,13 +74,7 @@
         submitBtn.textContent = 'A confirmar…';
 
         try {
-            const res = await fetch('/api/create-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items, customer, shippingMethod }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
+            const data = await createOrder({ items, customer, shippingMethod });
 
             // Order placed — clear the cart and show confirmation
             cart = {};
