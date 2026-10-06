@@ -67,10 +67,21 @@
 
         document.getElementById('detailCarouselMount').innerHTML = renderCarousel(product, 'large');
         document.getElementById('detailSwatchesMount').innerHTML = renderColorSwatches(product);
+        document.getElementById('detailCustomFieldsMount').innerHTML = renderCustomFieldsForm(product);
+
+        // Live character counter for text-type fields
+        document.querySelectorAll('#detailCustomFieldsMount input[maxlength]').forEach((input) => {
+            const counter = input.parentElement.querySelector('.char-count');
+            input.addEventListener('input', () => {
+                counter.textContent = `${input.value.length}/${input.maxLength}`;
+            });
+        });
 
         document.getElementById('detailAddBtn').addEventListener('click', () => {
             const color = getSelectedColor(product);
-            addToCart(product.id, color);
+            const customValues = collectCustomFieldValues(product);
+            if (customValues === null) return;
+            addToCart(product.id, color, true, customValues);
         });
 
         detailEl.addEventListener('click', (e) => {

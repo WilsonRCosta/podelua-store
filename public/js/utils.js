@@ -110,3 +110,81 @@ const CATEGORY_LABELS = {
   bijutaria: 'Bijutaria',
   bebe: 'Bebé',
 };
+
+// ----- Product Customization -----
+
+function slugifyLabel(label) {
+  return label
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+}
+
+function renderCustomFieldsForm(product) {
+  const fields = product.customFields || [];
+  if (fields.length === 0) return '';
+
+  return `
+    <div class="custom-fields" data-custom-fields-for="${product.id}">
+      <h3 class="custom-fields-title">Personalização</h3>
+      ${fields.map((f) => {
+    const key = slugifyLabel(f.label);
+    if (f.type === 'date') {
+      return `
+            <label class="custom-field">
+              <span>${f.label}</span>
+              <input type="date" name="${key}" required />
+            </label>`;
+    }
+    if (f.type === 'integer') {
+      return `
+            <label class="custom-field">
+              <span>${f.label}</span>
+              <input type="number" step="1" inputmode="numeric" name="${key}" required />
+            </label>`;
+    }
+    if (f.type === 'decimal') {
+      const decimals = f.limit || 2;
+      const step = (1 / Math.pow(10, decimals)).toFixed(decimals);
+      return `
+            <label class="custom-field">
+              <span>${f.label}</span>
+              <input type="number" step="${step}" inputmode="decimal" name="${key}" required />
+            </label>`;
+    }
+    // text
+    const maxLength = f.limit || 50;
+    return `
+          <label class="custom-field">
+            <span>${f.label}</span>
+            <input type="text" name="${key}" maxlength="${maxLength}" required />
+            <small class="char-count">0/${maxLength}</small>
+          </label>`;
+  }).join('')}
+    </div>
+  `;
+}
+
+// Reads and validates the form; returns an array of {label, value} pairs,
+// [] when the product has no customization, or null if something's
+// missing/invalid (and flags it for the shopper via the native input UI).
+function collectCustomFieldValues(product) {
+  const fields = product.customFields || [];
+  if (fields.length === 0) return [];
+
+  const container = document.querySelector(`[data-custom-fields-for="${product.id}"]`);
+  if (!container) return [];
+
+  const values = [];
+  for (const f of fields) {
+    const key = slugifyLabel(f.label);
+    const input = container.querySelector(`[name="${key}"]`);
+    if (!input || !input.value || !input.checkValidity()) {
+      if (input) input.reportValidity();
+      return null;
+    }
+    values.push({ label: f.label, value: input.value });
+  }
+  return values;
+}

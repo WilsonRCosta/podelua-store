@@ -85,6 +85,10 @@
     if (addBtn) {
       e.stopPropagation();
       const product = PRODUCTS.find((p) => p.id === addBtn.dataset.add);
+      if (product && product.customFields?.length > 0) {
+        window.location.href = `/product.html?id=${product.id}`;
+        return;
+      }
       const color = product ? getSelectedColor(product) : null;
       addToCart(addBtn.dataset.add, color);
       return;

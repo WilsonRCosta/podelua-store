@@ -13,9 +13,14 @@ let cart = loadCart(); // { [cartKey]: { id, color, qty } }
 
 // Same product in two different colors = two separate cart lines.
 // Same product with no color defined always collapses to one line.
-function cartKey(id, color) {
+function cartKey(id, color, customValues) {
+    if (customValues && customValues.length > 0) {
+        // Each personalized add is its own line — two different names shouldn't collapse into one quantity
+        return `${id}::${color || 'default'}::${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    }
     return `${id}::${color || 'default'}`;
 }
+
 
 let stripeConfigured = false;
 
@@ -38,10 +43,10 @@ async function loadStripeConfig() {
     }
 }
 
-function addToCart(id, color, showFeedback = true) {
-    const key = cartKey(id, color);
+function addToCart(id, color, showFeedback = true, customValues = []) {
+    const key = cartKey(id, color, customValues);
     if (!cart[key]) {
-        cart[key] = { id, color: color || null, qty: 0 };
+        cart[key] = { id, color: color || null, qty: 0, customValues: customValues.length ? customValues : null };
     }
     cart[key].qty += 1;
     saveCart(cart);
@@ -77,7 +82,7 @@ async function startCheckout() {
     const checkoutWarning = document.getElementById('checkoutWarning');
     const items = Object.values(cart)
         .filter((line) => line.qty > 0)
-        .map((line) => ({ id: line.id, qty: line.qty }));
+        .map((line) => ({ id: line.id, qty: line.qty, customValues: line.customValues || [] }));
 
     if (items.length === 0) return;
 

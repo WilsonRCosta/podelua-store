@@ -12,7 +12,8 @@ const stripe = hasStripeKey ? require('stripe')(process.env.STRIPE_SECRET_KEY) :
 const isPublicHttps = DOMAIN.startsWith('https://');
 
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
-const AIRTABLE_TABLE = process.env.AIRTABLE_PRODUCTS_TABLE;
+const PRODUCTS_TABLE = process.env.AIRTABLE_PRODUCTS_TABLE;
+const CUSTOM_TABLE = process.env.AIRTABLE_CUSTOM_TABLE;
 const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
 
 // ---------- Airtable helpers ----------
@@ -48,7 +49,7 @@ async function fetchProducts() {
   let offset = null;
 
   do {
-    const url = new URL(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`);
+    const url = getUrl(PRODUCTS_TABLE);
     url.searchParams.set('filterByFormula', '{active} = 1');
     if (offset) url.searchParams.set('offset', offset);
 
@@ -59,18 +60,57 @@ async function fetchProducts() {
     offset = data.offset;
   } while (offset);
 
-  return allRecords.map(mapRecord);
+  const customFieldsMap = await fetchCustomFieldsMap();
+
+  return allRecords.map((record) => {
+    const product = mapRecord(record);
+    product.customFields = customFieldsMap[product.id] || [];
+    return product;
+  });
 }
 
 async function fetchProductById(id) {
-  const url = new URL(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`);
-  url.searchParams.set('filterByFormula', `{id} = '${id}'`);
+  const products = await getCachedProducts();
+  return products.find((p) => p.id === id) || null;
+}
 
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-  if (!res.ok) throw new Error(`Airtable respondeu ${res.status}`);
-  const data = await res.json();
-  const record = data.records[0];
-  return record ? mapRecord(record) : null;
+async function fetchCustomFieldsMap() {
+  let allRecords = [];
+  let offset = null;
+
+  do {
+    const url = getUrl(CUSTOM_TABLE);
+    url.searchParams.set('sort[0][field]', 'order');
+    url.searchParams.set('sort[0][direction]', 'asc');
+    if (offset) url.searchParams.set('offset', offset);
+
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+    if (!res.ok) throw new Error(`Airtable (Personalização) respondeu ${res.status}`);
+    const data = await res.json();
+    allRecords = allRecords.concat(data.records);
+    offset = data.offset;
+  } while (offset);
+
+  const TYPE_MAP = { 'Texto': 'text', 'Inteiro': 'integer', 'Decimal': 'decimal', 'Data': 'date' };
+
+  // Group by the product's slug (text field), not an Airtable record id
+  const map = {};
+  for (const record of allRecords) {
+    const f = record.fields;
+    const productId = f['product-id'];
+    if (!productId) continue;
+    if (!map[productId]) map[productId] = [];
+    map[productId].push({
+      label: f.label,
+      type: TYPE_MAP[f.type] || 'text',
+      limit: f.limit || (TYPE_MAP[f.type] === 'decimal' ? 2 : 50),
+    });
+  }
+  return map; // { [slug id]: [ {label, type, limit}, ... ] }
+}
+
+function getUrl(table) {
+  return new URL(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${table}`)
 }
 
 // ---------- lightweight cache ----------

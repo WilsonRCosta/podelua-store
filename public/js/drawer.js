@@ -71,6 +71,11 @@ function renderCart() {
           <div class="cart-line-info">
             <h4>${p.name}</h4>
             ${line.color ? `<span class="cart-line-color" style="background:${line.color}"></span>` : ''}
+            ${line.customValues ? `
+              <div class="cart-line-custom">
+                ${line.customValues.map((cv) => `<div>${cv.label}: <strong>${cv.value}</strong></div>`).join('')}
+              </div>
+            ` : ''}
             <div class="cart-line-price">${formatPrice(p.price)}</div>
             <div class="qty-stepper">
               <button data-decr="${key}" aria-label="Diminuir quantidade">−</button>
