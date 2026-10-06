@@ -857,7 +857,8 @@ button {
 --------------------------------------------------------------- */
 
 .product-detail-wrap {
-  padding: 40px 0 90px;
+  padding-top: 40px;
+  padding-bottom: 90px;
 }
 
 #detailLoading {
@@ -879,8 +880,6 @@ button {
    away while reading a long description */
 .carousel-large {
   border-radius: var(--radius-card);
-  position: sticky;
-  top: 100px; /* clears the sticky header */
 }
 
 .carousel-dots-row {
@@ -1004,7 +1003,7 @@ button {
     gap: 28px;
   }
   .carousel-large {
-    position: static;
+    position: relative;
   }
   .detail-info h1 {
     font-size: 1.8rem;
@@ -1013,7 +1012,8 @@ button {
 
 @media (max-width: 480px) {
   .product-detail-wrap {
-    padding: 24px 0 60px;
+    padding-top: 24px;
+    padding-bottom: 60px;
   }
   .detail-info .card-price {
     font-size: 1.3rem;

@@ -105,6 +105,50 @@ function moveCarousel(carouselId, delta, absoluteIndex) {
   }
 }
 
+// Adds left/right swipe detection to a carousel element.
+// Reuses moveCarousel() so swiping stays in sync with arrows, dots and swatches.
+function enableCarouselSwipe(carouselEl, carouselId) {
+  let startX = 0;
+  let startY = 0;
+  let isSwiping = false;
+
+  const SWIPE_THRESHOLD = 40; // px — how far a swipe must travel to count
+
+  carouselEl.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    isSwiping = true;
+  }, { passive: true });
+
+  carouselEl.addEventListener('touchmove', (e) => {
+    if (!isSwiping) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+
+    // Only treat this as a photo swipe if horizontal movement dominates —
+    // otherwise a vertical scroll gesture would also trigger a photo change.
+    if (Math.abs(dx) > Math.abs(dy)) {
+      e.preventDefault(); // stop the page from scrolling while swiping the photo
+    }
+  }, { passive: false });
+
+  carouselEl.addEventListener('touchend', (e) => {
+    if (!isSwiping) return;
+    isSwiping = false;
+
+    const endX = e.changedTouches[0].clientX;
+    const dx = endX - startX;
+
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return; // too small, treat as a tap/scroll
+
+    if (dx < 0) {
+      moveCarousel(carouselId, 1); // swiped left → next photo
+    } else {
+      moveCarousel(carouselId, -1); // swiped right → previous photo
+    }
+  });
+}
+
 const CATEGORY_LABELS = {
   decoracao: 'Decoração',
   bijutaria: 'Bijutaria',

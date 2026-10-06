@@ -66,6 +66,10 @@
             (product.longDescription || product.description).replace(/\n/g, '<br>');
 
         document.getElementById('detailCarouselMount').innerHTML = renderCarousel(product, 'large');
+
+        const carouselEl = document.querySelector(`.carousel[data-carousel-id="${product.id}"]`);
+        if (carouselEl)
+            enableCarouselSwipe(carouselEl, product.id);
         document.getElementById('detailSwatchesMount').innerHTML = renderColorSwatches(product);
         document.getElementById('detailCustomFieldsMount').innerHTML = renderCustomFieldsForm(product);
 

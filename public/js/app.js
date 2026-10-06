@@ -48,6 +48,11 @@
       `
         )
         .join('');
+
+    // Wire up swipe on every carousel just rendered
+    grid.querySelectorAll('.carousel[data-carousel-id]').forEach((el) => {
+      enableCarouselSwipe(el, el.dataset.carouselId);
+    });
   }
 
   // ---------- category filter ----------
