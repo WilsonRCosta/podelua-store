@@ -67,6 +67,16 @@
       <button class="pill" data-category="bebe">Bebé</button>
     </div>
 
+    <div class="sort-bar">
+      <label for="sortSelect">Ordenar por</label>
+      <select id="sortSelect">
+        <option value="created_at:desc">Mais recentes</option>
+        <option value="created_at:asc">Mais antigos</option>
+        <option value="price:asc">Preço: mais baixo</option>
+        <option value="price:desc">Preço: mais alto</option>
+      </select>
+    </div>
+
     <div class="product-grid" id="productGrid">
       <div class="empty-state">A carregar peças…</div>
     </div>

@@ -3,19 +3,30 @@
 
   let PRODUCTS = [];
   let activeCategory = 'all';
+  let activeSort = 'created_at:desc';
 
   const grid = document.getElementById('productGrid');
   const categoryBar = document.getElementById('categoryBar');
+  const sortSelect = document.getElementById('sortSelect');
   const yearEl = document.getElementById('year');
 
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  // ---------- sorting ----------
+  function sortProducts(products) {
+    const [field, direction] = activeSort.split(':');
+    const dir = direction === 'asc' ? 1 : -1;
+    const value = (p) => (field === 'price' ? minPrice(p) : new Date(p.createdAt).getTime());
+    return [...products].sort((a, b) => (value(a) - value(b)) * dir);
+  }
+
   // ---------- rendering: product grid ----------
   function renderGrid() {
-    const items =
+    const items = sortProducts(
         activeCategory === 'all'
             ? PRODUCTS
-            : PRODUCTS.filter((p) => p.categories.includes(activeCategory));
+            : PRODUCTS.filter((p) => p.categories.includes(activeCategory))
+    );
 
     if (items.length === 0) {
       grid.innerHTML = `<div class="empty-state">Sem peças nesta categoria por agora.</div>`;
@@ -61,6 +72,12 @@
     if (!btn) return;
     activeCategory = btn.dataset.category;
     categoryBar.querySelectorAll('.pill').forEach((p) => p.classList.toggle('active', p === btn));
+    renderGrid();
+  });
+
+  // ---------- sort select ----------
+  sortSelect.addEventListener('change', () => {
+    activeSort = sortSelect.value;
     renderGrid();
   });
 

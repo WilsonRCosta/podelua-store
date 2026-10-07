@@ -50,6 +50,7 @@ function mapRecord(record) {
     description: f.description || '',
     longDescription: f.long_description || '',
     images,
+    createdAt: f.created_at || record.createdTime,
   };
 }
 
@@ -103,6 +104,8 @@ async function fetchProducts() {
   do {
     const url = getUrl(PRODUCTS_TABLE);
     url.searchParams.set('filterByFormula', '{active} = 1');
+    url.searchParams.set('sort[0][field]', 'created_at');
+    url.searchParams.set('sort[0][direction]', 'desc');
     if (offset) url.searchParams.set('offset', offset);
     const res = await fetchFromAirtable(url);
     if (!res.ok) throw new Error(`Airtable (Produtos) respondeu ${res.status}`);
