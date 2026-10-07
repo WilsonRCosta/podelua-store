@@ -186,6 +186,13 @@ function renderCustomFieldsForm(product) {
               <input type="date" name="${key}" required />
             </label>`;
     }
+    if (f.type === 'time') {
+      return `
+            <label class="custom-field">
+              <span>${f.label}</span>
+              <input type="time" step="60" name="${key}" required />
+            </label>`;
+    }
     if (f.type === 'integer') {
       return `
             <label class="custom-field">
