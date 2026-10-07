@@ -193,6 +193,13 @@ function renderCustomFieldsForm(product) {
               <input type="time" step="60" name="${key}" required />
             </label>`;
     }
+    if (f.type === 'boolean') {
+      return `
+            <label class="custom-field custom-field-switch">
+              <span>${f.label}</span>
+              <input type="checkbox" role="switch" name="${key}" />
+            </label>`;
+    }
     if (f.type === 'integer') {
       return `
             <label class="custom-field">
@@ -250,6 +257,11 @@ function collectCustomFieldValues(product) {
   for (const f of fields) {
     const key = slugifyLabel(f.label);
     const input = container.querySelector(`[name="${key}"]`);
+    // An unchecked switch is a valid answer, so it never blocks the form
+    if (f.type === 'boolean') {
+      if (input) values.push({ label: f.label, value: input.checked ? 'Sim' : 'Não' });
+      continue;
+    }
     if (!input || !input.value || !input.checkValidity()) {
       if (input) input.reportValidity();
       return null;

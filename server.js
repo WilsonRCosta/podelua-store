@@ -78,7 +78,7 @@ async function fetchCustomFieldsMap() {
     offset = data.offset;
   } while (offset);
 
-  const TYPE_MAP = { Texto: 'text', Inteiro: 'integer', Decimal: 'decimal', Data: 'date', Hora: 'time' };
+  const TYPE_MAP = { Texto: 'text', Inteiro: 'integer', Decimal: 'decimal', Data: 'date', Hora: 'time', Booleano: 'boolean' };
   const map = {};
   for (const record of allRecords) {
     const f = record.fields;
@@ -289,6 +289,8 @@ function resolveCustomValues(product, rawValues) {
     } else if (field.type === 'text' && value.length > field.limit) {
       return null;
     } else if (field.type === 'time' && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
+      return null;
+    } else if (field.type === 'boolean' && value !== 'Sim' && value !== 'Não') {
       return null;
     }
     values.push({ label: field.label, value });

@@ -128,7 +128,10 @@
             if (customValues === null) return;
             savedCustomValues = customValues;
             document.getElementById('detailPrice').textContent = formatPrice(linePrice(product, customValues));
-            summaryEl.textContent = customValues.map((cv) => cv.value).join(' · ');
+            summaryEl.textContent = customValues
+                .map((cv, i) => (product.customFields[i].type === 'boolean' ? (cv.value === 'Sim' ? cv.label : null) : cv.value))
+                .filter(Boolean)
+                .join(' · ');
             triggerEl.classList.add('is-done');
             document.getElementById('detailAddBtn').disabled = false;
             closeCustomDrawer();

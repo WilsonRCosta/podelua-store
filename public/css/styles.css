@@ -1018,6 +1018,43 @@ button {
   font-size: 0.9rem;
   background: var(--cream-soft);
 }
+.custom-field-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+.custom-field-switch span { margin-bottom: 0; }
+.custom-field-switch input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  position: relative;
+  width: 42px;
+  height: 24px;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--line);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.custom-field-switch input::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--cream-soft);
+  box-shadow: 0 1px 3px rgba(42, 37, 33, 0.25);
+  transition: transform 0.2s ease;
+}
+.custom-field-switch input:checked { background: var(--clay); border-color: var(--clay); }
+.custom-field-switch input:checked::before { transform: translateX(18px); }
+.custom-field-switch input:focus-visible { outline: 2px solid var(--charcoal); outline-offset: 2px; }
+
 .char-count {
   display: block;
   text-align: right;
