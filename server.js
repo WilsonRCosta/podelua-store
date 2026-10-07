@@ -24,13 +24,23 @@ const mailTransport = nodemailer.createTransport({
 
 // ---------- Airtable: products ----------
 
+// Internal product id derived from the name. Case, accents and extra spaces don't matter.
+function productIdFromName(name) {
+  return String(name || '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function mapRecord(record) {
   const f = record.fields;
   const colors = (f.colors || '').split(',').map((c) => c.trim()).filter(Boolean);
   const images = (f.images || []).map((img, i) => ({ url: img.url, color: colors[i] || null }));
 
   return {
-    id: f.id,
+    id: productIdFromName(f.name),
     name: f.name,
     categories: f.categories || [],
     price: f.price,
@@ -70,7 +80,7 @@ async function fetchCustomFieldsMap() {
   const map = {};
   for (const record of allRecords) {
     const f = record.fields;
-    const productId = f['product-id'];
+    const productId = productIdFromName(f.product);
     if (!productId) continue;
     if (!map[productId]) map[productId] = [];
     map[productId].push({
@@ -97,11 +107,20 @@ async function fetchProducts() {
   } while (offset);
 
   const customFieldsMap = await fetchCustomFieldsMap();
-  return allRecords.map((record) => {
+  const products = [];
+  const seen = new Set();
+  for (const record of allRecords) {
     const product = mapRecord(record);
+    if (!product.id) continue;
+    if (seen.has(product.id)) {
+      console.warn(`[products] ignoring "${product.name}": another active product has the same name`);
+      continue;
+    }
+    seen.add(product.id);
     product.customFields = customFieldsMap[product.id] || [];
-    return product;
-  });
+    products.push(product);
+  }
+  return products;
 }
 
 async function fetchProductById(id) {

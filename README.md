@@ -65,8 +65,7 @@ Os produtos são geridos no **Airtable**.
 
 Cada produto deve ter:
 
-* `id`
-* `name`
+* `name` (único)
 * `categories`
 * `price`
 * `description`
