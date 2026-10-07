@@ -75,6 +75,11 @@ function formatPrice(price) {
   });
 }
 
+// Listing price: "desde X €" when the final price depends on the personalization
+function formatProductPrice(product) {
+  return hasVariablePrice(product) ? `desde ${formatPrice(minPrice(product))}` : formatPrice(product.price);
+}
+
 // Reads which image/color is currently selected in a given carousel,
 // so "add to cart" can capture exactly what the shopper is looking at.
 function getSelectedColor(product) {
@@ -199,6 +204,20 @@ function renderCustomFieldsForm(product) {
     }
     // text
     const maxLength = f.limit || 50;
+    if (isPricedPerChar(f)) {
+      const extraNote = f.includedChars > 0
+          ? `${f.includedChars} letras incluídas, depois +${formatPrice(f.pricePerChar)} por letra`
+          : `+${formatPrice(f.pricePerChar)} por letra`;
+      return `
+          <label class="custom-field">
+            <span>${f.label}</span>
+            <input type="text" name="${key}" maxlength="${maxLength}" pattern="[\\p{L}\\p{M}]+" data-name-field
+                   autocomplete="off" autocapitalize="words" spellcheck="false" required
+                   title="Apenas um nome, só com letras" />
+            <small class="char-count">0/${maxLength}</small>
+            <small class="char-price-note">${extraNote}</small>
+          </label>`;
+    }
     return `
           <label class="custom-field">
             <span>${f.label}</span>
@@ -228,7 +247,14 @@ function collectCustomFieldValues(product) {
       if (input) input.reportValidity();
       return null;
     }
-    values.push({ label: f.label, value: input.value });
+    const value = isPricedPerChar(f) ? normalizeName(input.value) : input.value;
+    if (isPricedPerChar(f) && !isValidName(value)) {
+      input.setCustomValidity('Apenas um nome, só com letras');
+      input.reportValidity();
+      input.setCustomValidity('');
+      return null;
+    }
+    values.push({ label: f.label, value });
   }
   return values;
 }

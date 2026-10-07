@@ -56,8 +56,9 @@ function renderCart() {
         cartItemsEl.innerHTML = entries.map(([key, line]) => {
             const p = PRODUCTS.find((x) => x.id === line.id);
             if (!p) return '';
+            const unitPrice = linePrice(p, line.customValues);
             count += line.qty;
-            subtotal += p.price * line.qty;
+            subtotal += unitPrice * line.qty;
 
             const images = p.images || [];
             // find the image matching this line's saved color; fall back to the first photo
@@ -78,7 +79,7 @@ function renderCart() {
                 ${line.customValues.map((cv) => `<div>${cv.label}: <strong>${cv.value}</strong></div>`).join('')}
               </div>
             ` : ''}
-            <div class="cart-line-price">${formatPrice(p.price)}</div>
+            <div class="cart-line-price">${formatPrice(unitPrice)}</div>
             <div class="qty-stepper">
               <button data-decr="${key}" aria-label="Diminuir quantidade">−</button>
               <span>${line.qty}</span>

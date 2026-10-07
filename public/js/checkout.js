@@ -38,11 +38,12 @@
             .map(([, line]) => {
                 const p = PRODUCTS.find((x) => x.id === line.id);
                 if (!p) return '';
-                subtotal += p.price * line.qty;
+                const unitPrice = linePrice(p, line.customValues);
+                subtotal += unitPrice * line.qty;
                 return `
         <div class="summary-line">
           <span>${line.qty}× ${p.name}${line.color ? ` <span class="summary-color" style="background:${line.color}"></span>` : ''}</span>
-          <span>${formatPrice(p.price * line.qty)}</span>
+          <span>${formatPrice(unitPrice * line.qty)}</span>
         </div>`;
             })
             .join('');

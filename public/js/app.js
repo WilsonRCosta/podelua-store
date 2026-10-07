@@ -38,7 +38,7 @@
             <p class="card-desc">${p.description}</p>
             ${renderColorSwatches(p)}
             <div class="card-footer">
-              <span class="card-price">${formatPrice(p.price)}</span>
+              <span class="card-price">${formatProductPrice(p)}</span>
               <button class="add-btn" data-add="${p.id}" aria-label="Adicionar ${p.name} ao carrinho">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
               </button>

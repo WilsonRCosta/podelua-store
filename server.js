@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const { buildOrderConfirmationEmail } = require('./email-templates');
+const { isPricedPerChar, normalizeName, countChars, isValidName, linePrice } = require('./public/js/pricing');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -88,6 +89,9 @@ async function fetchCustomFieldsMap() {
       label: f.label,
       type: TYPE_MAP[f.type] || 'text',
       limit: f.limit || (TYPE_MAP[f.type] === 'decimal' ? 2 : 50),
+      // Only text fields can be priced per letter
+      pricePerChar: (TYPE_MAP[f.type] || 'text') === 'text' ? Number(f.price_per_char) || 0 : 0,
+      includedChars: Math.max(0, parseInt(f.included_chars, 10) || 0),
     });
   }
   return map;
@@ -270,6 +274,26 @@ async function calculateShippingCost(items) {
   return tier ? tier.price : (quotas[quotas.length - 1]?.price ?? 4.5);
 }
 
+// Rebuilds the customization from the product's own fields, so the client can't skip a field,
+// go over a limit or sneak spaces/symbols into a name priced per letter. Returns null when invalid.
+function resolveCustomValues(product, rawValues) {
+  const raw = Array.isArray(rawValues) ? rawValues : [];
+  const values = [];
+  for (const field of product.customFields || []) {
+    const cv = raw.find((v) => v && v.label === field.label);
+    let value = String(cv?.value ?? '').trim();
+    if (!value) return null;
+    if (isPricedPerChar(field)) {
+      value = normalizeName(value);
+      if (!isValidName(value) || countChars(value) > field.limit) return null;
+    } else if (field.type === 'text' && value.length > field.limit) {
+      return null;
+    }
+    values.push({ label: field.label, value });
+  }
+  return values;
+}
+
 // ---------- API ----------
 
 app.use(cors());
@@ -302,16 +326,22 @@ app.post('/api/create-order', async (req, res) => {
       const product = await fetchProductById(item.id);
       if (!product) continue;
       const qty = Math.max(1, Math.min(MAX_QTY_PER_LINE, parseInt(item.qty, 10) || 1));
-      subtotal += product.price * qty;
+      const customValues = resolveCustomValues(product, item.customValues);
+      if (customValues === null) {
+        return res.status(400).json({ error: `A personalização de "${product.name}" não é válida.` });
+      }
+      const price = linePrice(product, customValues);
+      subtotal += price * qty;
       resolvedItems.push({
         name: product.name,
         qty,
-        price: product.price,
+        price,
         size: product.size,
         color: item.color || null,
-        customValues: item.customValues || [],
+        customValues,
       });
     }
+    subtotal = Math.round(subtotal * 100) / 100;
 
     if (resolvedItems.length === 0) {
       return res.status(400).json({ error: 'Nenhum produto válido no carrinho.' });

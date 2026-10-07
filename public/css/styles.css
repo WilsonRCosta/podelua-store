@@ -1025,6 +1025,12 @@ button {
   color: var(--ink-muted);
   margin-top: 2px;
 }
+.char-price-note {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
 .customize-trigger {
   width: 100%;
   display: flex;

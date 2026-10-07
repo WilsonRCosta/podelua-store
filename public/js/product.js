@@ -62,7 +62,7 @@
                 .map((category) => CATEGORY_LABELS[category] || category)
                 .join(' · ');
         document.getElementById('detailName').textContent = product.name;
-        document.getElementById('detailPrice').textContent = formatPrice(product.price);
+        document.getElementById('detailPrice').textContent = formatProductPrice(product);
         document.getElementById('detailLongDesc').innerHTML =
             (product.longDescription || product.description).replace(/\n/g, '<br>');
 
@@ -104,13 +104,19 @@
         const formEl = document.getElementById('detailCustomFieldsMount');
         formEl.innerHTML = renderCustomFieldsForm(product);
 
-        // Live character counter for text-type fields
+        // Live character counter for text-type fields; name fields only accept letters
         formEl.querySelectorAll('input[maxlength]').forEach((input) => {
             const counter = input.parentElement.querySelector('.char-count');
             input.addEventListener('input', () => {
-                counter.textContent = `${input.value.length}/${input.maxLength}`;
+                if (input.hasAttribute('data-name-field')) {
+                    const lettersOnly = input.value.replace(/[^\p{L}\p{M}]/gu, '');
+                    if (lettersOnly !== input.value) input.value = lettersOnly;
+                }
+                counter.textContent = `${countChars(input.value)}/${input.maxLength}`;
+                updateConfirmPrice(product);
             });
         });
+        updateConfirmPrice(product);
 
         const triggerEl = document.getElementById('detailCustomizeBtn');
         const summaryEl = document.getElementById('detailCustomSummary');
@@ -121,6 +127,7 @@
             const customValues = collectCustomFieldValues(product);
             if (customValues === null) return;
             savedCustomValues = customValues;
+            document.getElementById('detailPrice').textContent = formatPrice(linePrice(product, customValues));
             summaryEl.textContent = customValues.map((cv) => cv.value).join(' · ');
             triggerEl.classList.add('is-done');
             document.getElementById('detailAddBtn').disabled = false;
@@ -137,6 +144,18 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeCustomDrawer();
         });
+    }
+
+    // Shows the live price (base + letters typed so far) on the save button
+    function updateConfirmPrice(product) {
+        if (!hasVariablePrice(product)) return;
+        const formEl = document.getElementById('detailCustomFieldsMount');
+        const currentValues = product.customFields.map((f) => ({
+            label: f.label,
+            value: formEl.querySelector(`[name="${slugifyLabel(f.label)}"]`)?.value || '',
+        }));
+        document.querySelector('#customConfirmBtn span').textContent =
+            `Guardar personalização · ${formatPrice(linePrice(product, currentValues))}`;
     }
 
     function openCustomDrawer() {
