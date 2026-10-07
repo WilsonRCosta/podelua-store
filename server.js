@@ -9,10 +9,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
+
 const PRODUCTS_TABLE = process.env.AIRTABLE_PRODUCTS_TABLE;
 const CUSTOM_TABLE = process.env.AIRTABLE_CUSTOM_TABLE;
 const ORDERS_TABLE = process.env.AIRTABLE_ORDERS_TABLE;
-const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
+const SIZES_TABLE = process.env.AIRTABLE_SIZES_TABLE;
+const QUOTAS_TABLE = process.env.AIRTABLE_QUOTAS_TABLE;
 
 const mailTransport = nodemailer.createTransport({
   service: 'gmail',
@@ -31,6 +34,7 @@ function mapRecord(record) {
     name: f.name,
     categories: f.categories || [],
     price: f.price,
+    size: f.size || null,
     description: f.description || '',
     longDescription: f.long_description || '',
     images,
@@ -39,6 +43,10 @@ function mapRecord(record) {
 
 function getUrl(table) {
   return new URL(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${table}`);
+}
+
+async function fetchFromAirtable(url) {
+  return await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
 }
 
 async function fetchCustomFieldsMap() {
@@ -51,7 +59,7 @@ async function fetchCustomFieldsMap() {
     url.searchParams.set('sort[0][direction]', 'asc');
     if (offset) url.searchParams.set('offset', offset);
 
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+    const res = await fetchFromAirtable(url);
     if (!res.ok) throw new Error(`Airtable (Personalização) respondeu ${res.status}`);
     const data = await res.json();
     allRecords = allRecords.concat(data.records);
@@ -81,8 +89,8 @@ async function fetchProducts() {
     const url = getUrl(PRODUCTS_TABLE);
     url.searchParams.set('filterByFormula', '{active} = 1');
     if (offset) url.searchParams.set('offset', offset);
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-    if (!res.ok) throw new Error(`Airtable respondeu ${res.status}`);
+    const res = await fetchFromAirtable(url);
+    if (!res.ok) throw new Error(`Airtable (Produtos) respondeu ${res.status}`);
     const data = await res.json();
     allRecords = allRecords.concat(data.records);
     offset = data.offset;
@@ -96,8 +104,55 @@ async function fetchProducts() {
   });
 }
 
-let productsCache = { data: null, fetchedAt: 0 };
+async function fetchProductById(id) {
+  const products = await getCachedProducts();
+  return products.find((p) => p.id === id) || null;
+}
+
+async function fetchSizeUnitsMap() {
+  let allRecords = [];
+  let offset = null;
+  do {
+    const url = getUrl(SIZES_TABLE);
+    if (offset) url.searchParams.set('offset', offset);
+    const res = await fetchFromAirtable(url);
+    if (!res.ok) throw new Error(`Airtable (Tamanhos) respondeu ${res.status}`);
+    const data = await res.json();
+    allRecords = allRecords.concat(data.records);
+    offset = data.offset;
+  } while (offset);
+
+  const map = {};
+  for (const record of allRecords) {
+    map[record.fields.size] = record.fields.units;
+  }
+  return map; // { XS: 1, S: 2, M: 4, L: 8 }
+}
+
+async function fetchQuotas() {
+  let allRecords = [];
+  let offset = null;
+  do {
+    const url = getUrl(QUOTAS_TABLE);
+    if (offset) url.searchParams.set('offset', offset);
+    const res = await fetchFromAirtable(url);
+    if (!res.ok) throw new Error(`Airtable (Escalões de Envio) respondeu ${res.status}`);
+    const data = await res.json();
+    allRecords = allRecords.concat(data.records);
+    offset = data.offset;
+  } while (offset);
+
+  return allRecords
+      .map((r) => ({ min: r.fields.min_units, max: r.fields.max_units, price: r.fields.price }))
+      .sort((a, b) => a.min - b.min);
+}
+
+// -------  CACHE  --------- //
+
 const CACHE_TTL_MS = 30 * 1000;
+
+let productsCache = { data: null, fetchedAt: 0 };
+let shippingCache = { data: null, fetchedAt: 0 };
 
 async function getCachedProducts() {
   const isFresh = productsCache.data && Date.now() - productsCache.fetchedAt < CACHE_TTL_MS;
@@ -107,9 +162,17 @@ async function getCachedProducts() {
   return products;
 }
 
-async function fetchProductById(id) {
-  const products = await getCachedProducts();
-  return products.find((p) => p.id === id) || null;
+async function getCachedShippingConfig() {
+  const isFresh = shippingCache.data && Date.now() - shippingCache.fetchedAt < CACHE_TTL_MS;
+  if (isFresh) return shippingCache.data;
+  try {
+    const [sizeUnits, quotas] = await Promise.all([fetchSizeUnitsMap(), fetchQuotas()]);
+    shippingCache = { data: { sizeUnits, quotas }, fetchedAt: Date.now() };
+  } catch (err) {
+    console.error('Shipping config fetch error:', err.message);
+    return shippingCache.data || { sizeUnits: {}, quotas: [] };
+  }
+  return shippingCache.data;
 }
 
 // ---------- Airtable: orders ----------
@@ -176,6 +239,17 @@ async function sendOrderConfirmationEmail(order) {
   });
 }
 
+async function calculateShippingCost(items) {
+  const { sizeUnits, quotas } = await getCachedShippingConfig();
+  let totalUnits = 0;
+  for (const item of items) {
+    const unitsPerItem = sizeUnits[item.size] ?? 1;
+    totalUnits += unitsPerItem * item.qty;
+  }
+  const tier = quotas.find((t) => totalUnits >= t.min && totalUnits <= t.max);
+  return tier ? tier.price : (quotas[quotas.length - 1]?.price ?? 4.5);
+}
+
 // ---------- API ----------
 
 app.use(cors());
@@ -193,7 +267,7 @@ app.get('/api/products', async (req, res) => {
 
 app.post('/api/create-order', async (req, res) => {
   try {
-    const { items, customer, shippingMethod } = req.body;
+    const { items, customer } = req.body;
 
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'O carrinho está vazio.' });
@@ -213,6 +287,7 @@ app.post('/api/create-order', async (req, res) => {
         name: product.name,
         qty,
         price: product.price,
+        size: product.size,
         color: item.color || null,
         customValues: item.customValues || [],
       });
@@ -222,7 +297,7 @@ app.post('/api/create-order', async (req, res) => {
       return res.status(400).json({ error: 'Nenhum produto válido no carrinho.' });
     }
 
-    const shipping = shippingMethod === 'pickup' ? 0 : 4.5;
+    const shipping = await calculateShippingCost(resolvedItems.map((it) => ({ size: it.size, qty: it.qty })));
     const total = Math.round((subtotal + shipping) * 100) / 100;
     const reference = generateReference();
 
@@ -235,6 +310,24 @@ app.post('/api/create-order', async (req, res) => {
   } catch (err) {
     console.error('Create order error:', err.message);
     res.status(500).json({ error: 'Não foi possível criar a encomenda. Tenta novamente.' });
+  }
+});
+
+app.post('/api/shipping-quote', async (req, res) => {
+  try {
+    const items = Array.isArray(req.body.items) ? req.body.items : [];
+    const resolved = [];
+    for (const item of items) {
+      const product = await fetchProductById(item.id);
+      if (!product) continue;
+      const qty = Math.max(1, Math.min(5, parseInt(item.qty, 10) || 1));
+      resolved.push({ size: product.size, qty });
+    }
+    const shippingCost = await calculateShippingCost(resolved);
+    res.json({ shippingCost });
+  } catch (err) {
+    console.error('Shipping quote error:', err.message);
+    res.status(500).json({ error: 'Não foi possível calcular o envio.' });
   }
 });
 

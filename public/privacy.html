@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacidade e Cookies — Pó de Lua</title>
+    <meta name="description" content="Política de privacidade e cookies da Pó de Lua." />
+    <link rel="icon" href="/images/mark.png" />
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<div id="header-mount"></div>
+
+<main class="container policy-wrap">
+    <h1 class="policy-title">Privacidade e Cookies</h1>
+    <p class="policy-updated">Última atualização: <span id="policyDate"></span></p>
+
+    <section class="policy-section">
+        <h2>1. Quem somos</h2>
+        <p>A Pó de Lua é um pequeno atelier de cerâmica artesanal, decoração e bijutaria, sediado em Almada, Portugal. Para qualquer questão sobre esta política, contacta-nos através de <a href="mailto:po.de.lua.pt@gmail.com">po.de.lua.pt@gmail.com</a>.</p>
+    </section>
+
+    <section class="policy-section">
+        <h2>2. Que dados recolhemos</h2>
+        <p>Recolhemos apenas os dados necessários para processar a tua encomenda, quando preenches o formulário de checkout:</p>
+        <ul>
+            <li>Nome</li>
+            <li>Email</li>
+            <li>Telefone (opcional)</li>
+            <li>Morada de envio</li>
+            <li>Detalhes de personalização que indiques (ex: nome a gravar numa peça)</li>
+        </ul>
+        <p>Não recolhemos dados de pagamento diretamente — o pagamento é feito por transferência bancária, usando a referência que te enviamos por email.</p>
+    </section>
+
+    <section class="policy-section">
+        <h2>3. Para que usamos estes dados</h2>
+        <ul>
+            <li>Processar e confirmar a tua encomenda</li>
+            <li>Enviar-te os detalhes de pagamento e o estado da encomenda</li>
+            <li>Preparar e enviar a tua peça para a morada indicada</li>
+            <li>Responder a dúvidas que nos coloques</li>
+        </ul>
+        <p>A base legal para este tratamento é a execução de um contrato (a tua compra) e, quando aplicável, o cumprimento de obrigações legais de faturação.</p>
+    </section>
+
+    <section class="policy-section">
+        <h2>4. Por quanto tempo guardamos os dados</h2>
+        <p>Guardamos os dados da tua encomenda enquanto for necessário para efeitos contabilísticos e fiscais, conforme exigido pela lei portuguesa, e não os partilhamos com terceiros além do estritamente necessário para processar o envio.</p>
+    </section>
+
+    <section class="policy-section">
+        <h2>5. Os teus direitos</h2>
+        <p>Podes, a qualquer momento, pedir-nos para aceder, corrigir, ou apagar os teus dados pessoais, escrevendo para <a href="mailto:po.de.lua.pt@gmail.com">po.de.lua.pt@gmail.com</a>. Tens também o direito de apresentar uma reclamação junto da <a href="https://www.cnpd.pt" target="_blank" rel="noopener">CNPD — Comissão Nacional de Proteção de Dados</a>.</p>
+    </section>
+
+    <section class="policy-section">
+        <h2>6. Cookies e armazenamento local</h2>
+        <p>Este site não usa cookies de rastreamento, publicidade ou análise de terceiros.</p>
+        <p>Usamos apenas <strong>armazenamento local do teu navegador</strong> (localStorage) para guardar o conteúdo do teu carrinho de compras entre visitas. Esta informação fica apenas no teu dispositivo, não é enviada para os nossos servidores, e podes apagá-la a qualquer momento limpando os dados de navegação do teu browser.</p>
+        <p>Se no futuro passarmos a usar ferramentas de análise ou publicidade que exijam cookies, iremos atualizar esta página e apresentar um aviso de consentimento adequado antes de os ativar.</p>
+    </section>
+
+    <section class="policy-section">
+        <h2>7. Alterações a esta política</h2>
+        <p>Podemos atualizar esta política ocasionalmente. A data no topo desta página indica a versão mais recente.</p>
+    </section>
+</main>
+
+<div id="cart-drawer-mount"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/partials.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/cart.js"></script>
+<script src="/js/drawer.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => loadSiteChrome());
+    document.addEventListener('chrome:ready', async () => {
+        const products = await fetchProducts().catch(() => []);
+        initCartDrawer(products);
+    });
+    document.getElementById('policyDate').textContent = new Date().toLocaleDateString('pt-PT', {
+        year: 'numeric', month: 'long', day: 'numeric',
+    });
+</script>
+</body>
+</html>

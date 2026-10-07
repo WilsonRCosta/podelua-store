@@ -35,18 +35,10 @@
                 <input type="text" name="address" placeholder="Rua, número, código postal, cidade" required />
             </label>
 
-            <fieldset class="shipping-fieldset">
-                <legend>Envio</legend>
-                <label class="shipping-option">
-                    <input type="radio" name="shippingMethod" value="normal" checked />
-                    <span>Envio normal (3-5 dias úteis) — 4,50 €</span>
-                </label>
-                <label class="shipping-option">
-                    <input type="radio" name="shippingMethod" value="pickup" />
-                    <span>Levantamento no atelier — Grátis</span>
-                </label>
-            </fieldset>
-
+            <p class="checkout-privacy-note">
+                Ao confirmar, aceitas que os teus dados sejam usados para processar esta encomenda, conforme a nossa
+                <a href="/privacy.html" target="_blank">Política de Privacidade</a>.
+            </p>
             <button type="submit" class="btn btn-primary" id="submitOrderBtn" style="width:100%; justify-content:center;">
                 Confirmar encomenda
             </button>

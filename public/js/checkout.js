@@ -15,14 +15,14 @@
             return;
         }
         initCartDrawer(PRODUCTS);
-        renderSummary();
+        await renderSummary();
     });
 
     function getCartEntries() {
         return Object.entries(cart).filter(([, line]) => line.qty > 0);
     }
 
-    function renderSummary() {
+    async function renderSummary() {
         const summaryEl = document.getElementById('checkoutSummary');
         const entries = getCartEntries();
 
@@ -31,9 +31,10 @@
             document.getElementById('checkoutForm').style.display = 'none';
             return;
         }
+        document.getElementById('checkoutForm').style.display = '';
 
         let subtotal = 0;
-        summaryEl.innerHTML = entries
+        const itemsHtml = entries
             .map(([, line]) => {
                 const p = PRODUCTS.find((x) => x.id === line.id);
                 if (!p) return '';
@@ -44,8 +45,25 @@
           <span>${formatPrice(p.price * line.qty)}</span>
         </div>`;
             })
-            .join('') + `<div class="summary-line summary-total"><span>Subtotal</span><span>${formatPrice(subtotal)}</span></div>`;
+            .join('');
+
+        summaryEl.innerHTML =
+            itemsHtml +
+            `<div class="summary-line"><span>Subtotal</span><span>${formatPrice(subtotal)}</span></div>` +
+            `<div class="summary-line"><span>Envio</span><span id="summaryShipping">A calcular…</span></div>` +
+            `<div class="summary-line summary-total"><span>Total</span><span id="summaryTotal">—</span></div>`;
+
+        try {
+            const items = entries.map(([, line]) => ({ id: line.id, qty: line.qty }));
+            const { shippingCost } = await fetchShippingQuote(items);
+            document.getElementById('summaryShipping').textContent = formatPrice(shippingCost);
+            document.getElementById('summaryTotal').textContent = formatPrice(subtotal + shippingCost);
+        } catch (e) {
+            document.getElementById('summaryShipping').textContent = 'Erro ao calcular';
+        }
     }
+
+    window.onCartChanged = renderSummary;
 
     document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -68,13 +86,12 @@
             phone: form.phone.value.trim(),
             address: form.address.value.trim(),
         };
-        const shippingMethod = form.shippingMethod.value;
 
         submitBtn.disabled = true;
         submitBtn.textContent = 'A confirmar…';
 
         try {
-            const data = await createOrder({ items, customer, shippingMethod });
+            const data = await createOrder({ items, customer });
 
             // Order placed — clear the cart and show confirmation
             cart = {};

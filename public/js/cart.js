@@ -38,6 +38,7 @@ function addToCart(id, color, showFeedback = true, customValues = []) {
     cart[key].qty += 1;
     saveCart(cart);
     if (typeof renderCart === 'function') renderCart();
+    if (typeof onCartChanged === 'function') onCartChanged();
     if (showFeedback && typeof showToast === 'function') {
         showToast('Adicionado ao carrinho');
     }
@@ -48,6 +49,7 @@ function incrCart(key) {
     cart[key].qty += 1;
     saveCart(cart);
     if (typeof renderCart === 'function') renderCart();
+    if (typeof onCartChanged === 'function') onCartChanged();
 }
 
 function decrCart(key) {
@@ -56,10 +58,12 @@ function decrCart(key) {
     if (cart[key].qty <= 0) delete cart[key];
     saveCart(cart);
     if (typeof renderCart === 'function') renderCart();
+    if (typeof onCartChanged === 'function') onCartChanged();
 }
 
 function removeFromCart(key) {
     delete cart[key];
     saveCart(cart);
     if (typeof renderCart === 'function') renderCart();
+    if (typeof onCartChanged === 'function') onCartChanged();
 }

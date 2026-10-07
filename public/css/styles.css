@@ -763,6 +763,30 @@ button {
 .checkout-confirmation h2 { font-family: var(--display); font-size: 1.8rem; margin-bottom: 10px; }
 @media (max-width: 860px) { .checkout-grid { grid-template-columns: 1fr; } }
 
+
+/* Privacy Notes */
+.checkout-privacy-note {
+  font-size: 0.76rem;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  margin: 4px 0 14px;
+}
+.checkout-privacy-note a {
+  color: var(--clay-dark);
+  text-decoration: underline;
+}
+.detail-footer-link {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+  margin-top: 40px;
+}
+.detail-footer-link a {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  text-decoration: underline;
+}
 /* ---------------------------------------------------------------
    Responsive
 --------------------------------------------------------------- */
