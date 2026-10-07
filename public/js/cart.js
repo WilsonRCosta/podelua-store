@@ -1,5 +1,6 @@
 // public/js/cart.js
 const CART_KEY = 'podelua-cart-v1';
+const MAX_QTY_PER_LINE = 3;
 
 function loadCart() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || {}; }
@@ -35,6 +36,10 @@ function addToCart(id, color, showFeedback = true, customValues = []) {
     if (!cart[key]) {
         cart[key] = { id, color: color || null, qty: 0, customValues: customValues.length ? customValues : null };
     }
+    if (cart[key].qty >= MAX_QTY_PER_LINE) {
+        if (showFeedback) showToast(`Máximo de ${MAX_QTY_PER_LINE} unidades por produto`);
+        return;
+    }
     cart[key].qty += 1;
     saveCart(cart);
     if (typeof renderCart === 'function') renderCart();
@@ -46,6 +51,10 @@ function addToCart(id, color, showFeedback = true, customValues = []) {
 
 function incrCart(key) {
     if (!cart[key]) return;
+    if (cart[key].qty >= MAX_QTY_PER_LINE) {
+        showToast(`Máximo de ${MAX_QTY_PER_LINE} unidades por produto`);
+        return;
+    }
     cart[key].qty += 1;
     saveCart(cart);
     if (typeof renderCart === 'function') renderCart();

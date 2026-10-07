@@ -16,6 +16,7 @@ const CUSTOM_TABLE = process.env.AIRTABLE_CUSTOM_TABLE;
 const ORDERS_TABLE = process.env.AIRTABLE_ORDERS_TABLE;
 const SIZES_TABLE = process.env.AIRTABLE_SIZES_TABLE;
 const QUOTAS_TABLE = process.env.AIRTABLE_QUOTAS_TABLE;
+const MAX_QTY_PER_LINE = 3;
 
 const mailTransport = nodemailer.createTransport({
   service: 'gmail',
@@ -300,7 +301,7 @@ app.post('/api/create-order', async (req, res) => {
     for (const item of items) {
       const product = await fetchProductById(item.id);
       if (!product) continue;
-      const qty = Math.max(1, Math.min(5, parseInt(item.qty, 10) || 1));
+      const qty = Math.max(1, Math.min(MAX_QTY_PER_LINE, parseInt(item.qty, 10) || 1));
       subtotal += product.price * qty;
       resolvedItems.push({
         name: product.name,
@@ -339,7 +340,7 @@ app.post('/api/shipping-quote', async (req, res) => {
     for (const item of items) {
       const product = await fetchProductById(item.id);
       if (!product) continue;
-      const qty = Math.max(1, Math.min(5, parseInt(item.qty, 10) || 1));
+      const qty = Math.max(1, Math.min(MAX_QTY_PER_LINE, parseInt(item.qty, 10) || 1));
       resolved.push({ size: product.size, qty });
     }
     const shippingCost = await calculateShippingCost(resolved);

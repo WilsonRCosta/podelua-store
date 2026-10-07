@@ -82,7 +82,7 @@ function renderCart() {
             <div class="qty-stepper">
               <button data-decr="${key}" aria-label="Diminuir quantidade">−</button>
               <span>${line.qty}</span>
-              <button data-incr="${key}" aria-label="Aumentar quantidade">+</button>
+              <button data-incr="${key}" aria-label="Aumentar quantidade"${line.qty >= MAX_QTY_PER_LINE ? ' disabled' : ''}>+</button>
             </div>
             <button class="remove-line" data-remove="${key}">Remover</button>
           </div>
