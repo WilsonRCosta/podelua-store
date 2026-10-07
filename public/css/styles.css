@@ -830,7 +830,19 @@ button {
 
 @media (max-width: 720px) {
   .main-nav { display: none; }
-  .nav-toggle { display: block; }
+  .main-nav.open {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 24px;
+    background: var(--cream-soft);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-toggle { display: block; cursor: pointer; }
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .hero { padding: 36px 0 20px; }
   .hero-copy p { max-width: none; }

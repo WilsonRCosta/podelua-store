@@ -13,5 +13,17 @@ async function loadSiteChrome() {
         loadPartial('/partials/header.html', '#header-mount'),
         loadPartial('/partials/cart-drawer.html', '#cart-drawer-mount'),
     ]);
+    initNavToggle();
     document.dispatchEvent(new Event('chrome:ready'));
+}
+
+// Mobile menu: must be wired after the header partial replaces the placeholder
+function initNavToggle() {
+    const toggle = document.getElementById('navToggle');
+    const nav = document.querySelector('.main-nav');
+    if (!toggle || !nav) return;
+    toggle.addEventListener('click', () => nav.classList.toggle('open'));
+    nav.addEventListener('click', (e) => {
+        if (e.target.closest('a')) nav.classList.remove('open');
+    });
 }

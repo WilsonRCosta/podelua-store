@@ -120,18 +120,6 @@
     }
   });
 
-  // ---------- mobile nav toggle ----------
-  const navToggle = document.getElementById('navToggle');
-  if (navToggle) {
-    navToggle.addEventListener('click', () => {
-      const nav = document.querySelector('.main-nav');
-      const isOpen = nav.style.display === 'flex';
-      nav.style.cssText = isOpen
-          ? ''
-          : 'display:flex; position:absolute; top:100%; left:0; right:0; flex-direction:column; background:var(--cream-soft); padding:18px 24px; gap:16px; border-bottom:1px solid var(--line);';
-    });
-  }
-
   // ---------- boot ----------
   document.addEventListener('DOMContentLoaded', () => {
     loadSiteChrome();
