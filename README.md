@@ -8,7 +8,16 @@ Frontend responsivo em HTML/CSS/JavaScript, backend em Node/Express, catálogo g
 
 ```text
 podelua-store/
-├── server.js
+├── server.js              # entry point (local) — starts the app
+├── api/index.js           # entry point (Vercel)
+├── src/
+│   ├── app.js             # Express app (middleware, static, routes)
+│   ├── config.js          # env vars
+│   ├── cache.js           # TTL cache helper
+│   ├── airtable/client.js # Airtable fetch/pagination/write
+│   ├── routes/api.js      # /api/* endpoints
+│   ├── services/          # products, shipping, orders, mailer
+│   └── email/templates.js
 ├── public/
 │   ├── index.html
 │   ├── product.html

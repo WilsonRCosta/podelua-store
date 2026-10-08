@@ -4,13 +4,23 @@ function eur(n) {
     return n.toFixed(2).replace('.', ',') + ' €';
 }
 
+// Customer-provided text must never be interpreted as HTML.
+function esc(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function orderItemsHtml(items) {
     return items
         .map(
             (it) => `
     <tr>
-      <td style="padding:6px 10px; border-bottom:1px solid #e6dcc8;">${it.qty}× ${it.name}${
-                it.color ? ` <span style="color:#756a5f;">(cor ${it.color})</span>` : ''
+      <td style="padding:6px 10px; border-bottom:1px solid #e6dcc8;">${it.qty}× ${esc(it.name)}${
+                it.color ? ` <span style="color:#756a5f;">(cor ${esc(it.color)})</span>` : ''
             }</td>
       <td style="padding:6px 10px; border-bottom:1px solid #e6dcc8; text-align:right;">${eur(it.price * it.qty)}</td>
     </tr>`
@@ -27,11 +37,11 @@ function buildOrderConfirmationEmail(order, bankDetails) {
     const html = `
     <div style="font-family:Arial,sans-serif; color:#2a2521; max-width:520px; margin:0 auto;">
       <h2 style="font-family:Georgia,serif;">Pó de Lua 🌙</h2>
-      <p>Olá ${order.customer.name},</p>
+      <p>Olá ${esc(order.customer.name)},</p>
       <p>Obrigado pela tua encomenda! Falta só o pagamento por transferência bancária para a confirmarmos:</p>
       <table style="background:#f7f2ea; border-radius:10px; width:100%; border-collapse:collapse; margin:16px 0;">
-        <tr><td style="padding:8px 14px;"><strong>IBAN</strong></td><td style="padding:8px 14px;">${bankDetails.iban}</td></tr>
-        <tr><td style="padding:8px 14px;"><strong>Titular</strong></td><td style="padding:8px 14px;">${bankDetails.holder}</td></tr>
+        <tr><td style="padding:8px 14px;"><strong>IBAN</strong></td><td style="padding:8px 14px;">${esc(bankDetails.iban)}</td></tr>
+        <tr><td style="padding:8px 14px;"><strong>Titular</strong></td><td style="padding:8px 14px;">${esc(bankDetails.holder)}</td></tr>
         <tr><td style="padding:8px 14px;"><strong>Referência</strong></td><td style="padding:8px 14px;"><strong>${order.reference}</strong></td></tr>
         <tr><td style="padding:8px 14px;"><strong>Valor a pagar</strong></td><td style="padding:8px 14px;"><strong>${eur(order.total)}</strong></td></tr>
       </table>
@@ -39,7 +49,7 @@ function buildOrderConfirmationEmail(order, bankDetails) {
       <h3 style="margin-top:28px;">Resumo</h3>
       <table style="width:100%; border-collapse:collapse;">${orderItemsHtml(order.items)}</table>
       <p style="margin-top:16px;">Subtotal: ${eur(order.subtotal)}<br>Envio: ${eur(order.shipping)}<br><strong>Total: ${eur(order.total)}</strong></p>
-      <p style="margin-top:20px;">Assim que confirmarmos o pagamento, preparamos o envio para:<br>${order.customer.address}</p>
+      <p style="margin-top:20px;">Assim que confirmarmos o pagamento, preparamos o envio para:<br>${esc(order.customer.address).replace(/\n/g, '<br>')}</p>
       <p>Qualquer dúvida, responde a este email.</p>
       <p>Com carinho,<br>Pó de Lua</p>
     </div>
