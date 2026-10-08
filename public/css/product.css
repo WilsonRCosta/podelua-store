@@ -1,9 +1,5 @@
 /* ============================================================
    Pó de Lua — product.css  (product detail page, desktop + mobile)
-   Load AFTER styles.css, site-theme.css and pages.css.
-   Mobile keeps the exact same look as desktop (dark moon frame,
-   brand label, crescent, gold rule, gold-hover CTA, entrance
-   animation); only the layout stacks.
    ============================================================ */
 
 .product-detail-wrap {

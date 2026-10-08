@@ -1,7 +1,5 @@
 /* ============================================================
-   Pó de Lua — home redesign v2 "luz da lua"   (load AFTER styles.css)
-   Night hero with drifting moon dust, floating moon logo, marquee,
-   tilt + glare product cards. Motion respects reduced-motion.
+   Pó de Lua — home.css
    ============================================================ */
 :root { --header-h: 68px; --night: #221d1a; --night-2: #342b25; }
 

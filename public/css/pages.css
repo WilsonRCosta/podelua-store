@@ -2,7 +2,6 @@
 /* ============================================================
    Pó de Lua — pages.css
    Shared "luz da lua" visual language for inner pages.
-   Load AFTER styles.css and BEFORE page-specific CSS.
    ============================================================ */
 
 :root {
@@ -196,118 +195,6 @@
 .customize-trigger.is-done {
     border-color: var(--gold);
     box-shadow: 0 10px 30px -20px rgba(34,29,26,.5);
-}
-
-/* ------------------------------------------------------------
-   Checkout
-   ------------------------------------------------------------ */
-
-.checkout-wrap {
-    padding-top: 58px;
-}
-
-.checkout-title {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    line-height: 1;
-    margin: 0 0 42px;
-}
-
-.checkout-title::after {
-    content: "☾";
-    display: inline-block;
-    margin-left: 14px;
-    color: var(--gold);
-    font-family: var(--display);
-    font-size: .55em;
-    vertical-align: .18em;
-}
-
-.checkout-grid {
-    gap: 34px;
-    align-items: stretch;
-}
-
-.checkout-summary,
-.checkout-form {
-    border-radius: 22px;
-}
-
-.checkout-summary {
-    position: relative;
-    overflow: hidden;
-    padding: 28px;
-    background:
-            radial-gradient(120% 120% at 100% 0%, var(--moon-night-2), var(--moon-night));
-    border: 1px solid rgba(216,187,124,.18);
-    color: var(--cream-soft);
-    box-shadow: 0 22px 55px -28px rgba(34,29,26,.6);
-}
-
-.checkout-summary::before {
-    content: "O teu pedido";
-    display: block;
-    margin-bottom: 22px;
-    font-family: var(--display);
-    font-size: 1.65rem;
-    color: var(--cream-soft);
-}
-
-.checkout-summary .summary-line {
-    color: #d8cec0;
-    border-bottom: 1px solid rgba(255,255,255,.08);
-    padding: 13px 0;
-}
-
-.checkout-summary .summary-total {
-    border-top-color: rgba(216,187,124,.25);
-    color: var(--cream-soft);
-    font-size: 1.35rem;
-}
-
-.checkout-form {
-    padding: 28px;
-    background: rgba(247,242,234,.68);
-    border: 1px solid var(--line);
-    box-shadow: 0 18px 50px -35px rgba(34,29,26,.45);
-}
-
-.checkout-form .custom-field {
-    margin-bottom: 17px;
-}
-
-.checkout-form .custom-field span {
-    color: var(--ink-muted);
-    letter-spacing: .12em;
-}
-
-.checkout-form .custom-field input {
-    min-height: 48px;
-    border-radius: 12px;
-    border-color: var(--line);
-    background: rgba(255,255,255,.45);
-    transition: border-color .2s, box-shadow .2s, background .2s;
-}
-
-.checkout-form .custom-field input:focus {
-    outline: none;
-    border-color: var(--gold);
-    background: var(--cream-soft);
-    box-shadow: 0 0 0 4px rgba(216,187,124,.12);
-}
-
-.checkout-form .btn-primary {
-    background:
-            linear-gradient(105deg, var(--moon-night), #3a3029);
-    border: 1px solid rgba(216,187,124,.45);
-}
-
-.checkout-form .btn-primary:hover {
-    background: var(--moon-gold);
-    color: var(--moon-night);
-}
-
-.checkout-privacy-note {
-    padding-top: 8px;
 }
 
 /* ------------------------------------------------------------
