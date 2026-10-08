@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pó de Lua — Cerâmica Artesanal</title>
-<meta name="description" content="Cerâmica artesanal, decoração e bijutaria feitas à mão, peça a peça." />
-<link rel="icon" href="/images/mark.png" />
-<link rel="stylesheet" href="/css/styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pó de Lua — Cerâmica Artesanal</title>
+  <meta name="description" content="Cerâmica artesanal, decoração e bijutaria feitas à mão, peça a peça." />
+  <link rel="icon" href="/images/mark.png" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/home.css" />
 </head>
 <body>
 
@@ -35,11 +36,9 @@
 <section class="hero">
   <div class="container hero-inner">
     <div class="hero-copy">
-      <p class="eyebrow">Cerâmica artesanal · Decoração &amp; Bijutaria</p>
-      <h1>Peças moldadas<br/>à mão, à <em>luz da lua</em>.</h1>
-      <p>Cada vaso, taça e brinco nasce do barro cru e sai do forno único — pequenas imperfeições incluídas, porque são elas que provam a mão de quem fez.</p>
+      <h1>Peças moldadas à mão,<br/>à <em>luz da lua</em>.</h1>
+      <p>Cerâmica, decoração e bijutaria feitas peça a peça. Cada uma sai do forno única, com as pequenas imperfeições de quem a fez.</p>
       <div class="hero-actions">
-        <a href="#loja" class="btn btn-primary">Ver coleção</a>
         <a href="#sobre" class="btn btn-ghost">Sobre o atelier</a>
       </div>
     </div>
@@ -49,32 +48,25 @@
   </div>
 </section>
 
-<div class="phase-divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
-
 <section class="shop-section" id="loja">
   <div class="container">
-    <div class="section-heading">
-      <p class="eyebrow">A coleção</p>
-      <h2>Feito à mão, peça a peça</h2>
-    </div>
 
-    <div style="height:34px"></div>
-
-    <div class="category-bar" id="categoryBar">
-      <button class="pill active" data-category="all">Tudo</button>
-      <button class="pill" data-category="decoracao">Decoração</button>
-      <button class="pill" data-category="bijutaria">Bijutaria</button>
-      <button class="pill" data-category="bebe">Bebé</button>
-    </div>
-
-    <div class="sort-bar">
-      <label for="sortSelect">Ordenar por</label>
-      <select id="sortSelect">
-        <option value="created_at:desc">Mais recentes</option>
-        <option value="created_at:asc">Mais antigos</option>
-        <option value="price:asc">Preço: mais baixo</option>
-        <option value="price:desc">Preço: mais alto</option>
-      </select>
+    <div class="shop-toolbar">
+      <div class="category-bar" id="categoryBar">
+        <button class="pill active" data-category="all">Tudo</button>
+        <button class="pill" data-category="decoracao">Decoração</button>
+        <button class="pill" data-category="bijutaria">Bijutaria</button>
+        <button class="pill" data-category="bebe">Bebé</button>
+      </div>
+      <div class="sort-bar">
+        <label for="sortSelect">Ordenar por</label>
+        <select id="sortSelect" aria-label="Ordenar por">
+          <option value="created_at:desc">Mais recentes</option>
+          <option value="created_at:asc">Mais antigos</option>
+          <option value="price:asc">Preço: mais baixo</option>
+          <option value="price:desc">Preço: mais alto</option>
+        </select>
+      </div>
     </div>
 
     <div class="product-grid" id="productGrid">

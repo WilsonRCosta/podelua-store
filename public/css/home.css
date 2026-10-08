@@ -1,0 +1,103 @@
+/* ============================================================
+   Pó de Lua — home redesign (load AFTER /css/styles.css)
+   Only affects the main page; product/checkout pages untouched.
+   Goal: compact hero so the first row of products peeks in
+   above the fold, plus a sticky filter bar.
+   ============================================================ */
+
+:root { --header-h: 68px; }
+
+/* Header: a bit lighter */
+.site-header { background: rgba(242,235,224,.92); }
+
+/* ---------- Hero: compact band with a moon ---------- */
+.hero {
+    position: relative;
+    padding: 36px 0 44px;
+    background:
+            radial-gradient(circle at 88% 10%, rgba(175,139,78,.22) 0 120px, transparent 121px),
+            linear-gradient(180deg, var(--stone) 0%, var(--cream) 100%);
+    border-bottom: 1px solid var(--line);
+}
+.hero-inner { grid-template-columns: 1fr auto; gap: 40px; }
+.hero-copy h1 {
+    font-size: clamp(2rem, 4.2vw, 3.1rem);
+    line-height: 1.1;
+    margin: 0 0 14px;
+}
+.hero-copy p { font-size: 1rem; line-height: 1.6; margin: 0 0 22px; max-width: 52ch; }
+.hero-copy .eyebrow { display: none; }
+.hero-actions { gap: 12px; }
+.btn { padding: 12px 24px; }
+.hero-visual img { max-width: 190px; }
+.hero-visual::before {
+    content: "";
+    position: absolute;
+    width: 230px; height: 230px;
+    border-radius: 50%;
+    background: var(--cream-soft);
+    box-shadow: 0 0 0 1px var(--line), 0 0 0 14px rgba(247,242,234,.5);
+}
+.hero-visual img { position: relative; }
+.phase-divider { display: none; }
+
+/* ---------- Sticky toolbar: filters + sort in one row ---------- */
+.shop-section { padding: 0 0 70px; }
+.section-heading, .shop-section > .container > div[style] { display: none; }
+
+.shop-toolbar {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    margin-bottom: 22px;
+    background: rgba(242,235,224,.94);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+}
+.shop-toolbar .category-bar { margin: 0; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.shop-toolbar .category-bar::-webkit-scrollbar { display: none; }
+.shop-toolbar .pill { white-space: nowrap; padding: 9px 18px; }
+.shop-toolbar .sort-bar { margin: 0; flex-shrink: 0; }
+.shop-toolbar .sort-bar label { display: none; }
+
+/* ---------- Cards: calmer, image-first ---------- */
+.product-grid { gap: 22px; }
+.product-card { border-radius: 18px; background: var(--cream-soft); }
+.carousel { border-radius: 18px 18px 0 0; }
+.product-card:hover { box-shadow: var(--shadow-soft); }
+.card-body { padding: 16px 16px 18px; gap: 4px; }
+.card-category { display: none; }
+.card-name { font-size: 1.2rem; }
+.card-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: .82rem;
+}
+.card-price { font-size: 1.2rem; }
+
+/* ---------- Trust strip: quieter, closer ---------- */
+.trust-strip { background: var(--cream-soft); margin-bottom: 0; padding: 48px 0; border-bottom: 0; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+}
+@media (max-width: 720px) {
+    :root { --header-h: 62px; }
+    .hero { padding: 24px 0 28px; background: linear-gradient(180deg, var(--stone), var(--cream)); }
+    .hero-copy h1 { font-size: 1.8rem; margin-bottom: 10px; }
+    .hero-copy h1 br { display: none; }
+    .hero-copy p { font-size: .92rem; margin-bottom: 16px; }
+    .hero-actions { display: none; }
+    .shop-toolbar { position: static; flex-wrap: wrap; gap: 10px; padding: 10px 0; }
+    .shop-toolbar .category-bar { width: 100%; }
+    .shop-toolbar .sort-bar { width: 100%; justify-content: flex-start; }
+}
