@@ -61,6 +61,16 @@
     border-color: var(--moon-gold);
 }
 
+.site-header .nav-icon,
+#header-mount .nav-icon {
+    color: #d8cec0;
+}
+
+.site-header .nav-icon:hover,
+#header-mount .nav-icon:hover {
+    color: var(--moon-gold);
+}
+
 .site-header .nav-toggle span,
 #header-mount .nav-toggle span {
     background: var(--cream-soft);

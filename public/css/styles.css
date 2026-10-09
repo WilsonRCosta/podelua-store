@@ -608,6 +608,112 @@ button {
     color: var(--clay-dark);
 }
 
+/* ---------- Header icon ---------- */
+.nav-icon {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px;
+    color: var(--charcoal);
+    transition: color .2s, transform .2s;
+}
+
+.nav-icon:hover {
+    color: var(--clay-dark);
+    transform: translateY(-1px);
+}
+
+.footer-col .nav-icon {
+    color: #cfc4b3;
+    padding: 0;
+}
+
+.footer-col .nav-icon:hover {
+    color: var(--gold);
+}
+
+/* ---------- Shipping / FAQ ---------- */
+section[id] {
+    scroll-margin-top: 72px; /* keeps titles clear of the sticky header */
+}
+
+.info-section {
+    padding: 88px 0 96px;
+}
+
+.info-inner {
+    max-width: 760px;
+}
+
+.info-section h2 {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+    margin: 0 0 24px;
+    text-align: center;
+}
+
+.info-section details {
+    border-bottom: 1px solid var(--line);
+}
+
+.info-section details:first-of-type {
+    border-top: 1px solid var(--line);
+}
+
+.info-section summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 2px;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--display);
+    font-size: 1.15rem;
+    font-weight: 500;
+    transition: color .2s;
+}
+
+.info-section summary::-webkit-details-marker {
+    display: none;
+}
+
+.info-section summary::after {
+    content: "+";
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--clay);
+    transition: transform .25s;
+}
+
+.info-section details[open] summary::after {
+    transform: rotate(45deg);
+}
+
+.info-section summary:hover {
+    color: var(--clay-dark);
+}
+
+.info-section summary:focus-visible {
+    outline: 2px solid var(--clay);
+    outline-offset: 2px;
+}
+
+.info-section details p {
+    margin: 0;
+    padding: 0 2px 20px;
+    font-size: .92rem;
+    line-height: 1.7;
+    color: var(--ink-muted);
+}
+
+.info-section details p a {
+    color: var(--clay-dark);
+    text-decoration: underline;
+}
+
 /* ---------- Footer ---------- */
 .site-footer {
     background: var(--charcoal);
@@ -1117,6 +1223,10 @@ button {
 }
 
 @media (max-width: 720px) {
+    .info-section {
+        padding: 56px 0 64px;
+    }
+
     .main-nav {
         display: none;
     }
