@@ -21,6 +21,7 @@
         let products;
         try {
             products = await getProducts();
+            registerProducts(products);
             console.log('[product.js] loaded', products.length, 'products');
         } catch (e) {
             console.error('[product.js] failed to fetch products:', e);
@@ -96,6 +97,7 @@
 
         loadingEl.style.display = 'none';
         detailEl.style.display = 'grid';
+        track('view_product', { product: product.name, category: product.categories.join(' · ') });
     }
 
     // Side panel holding the customization form; slides in from the right

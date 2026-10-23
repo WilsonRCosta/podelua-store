@@ -39,6 +39,7 @@ function initCartDrawer(products) {
 function openCartDrawer() {
     cartDrawerEl.classList.add('open');
     overlayEl.classList.add('open');
+    track('open_cart');
 }
 function closeCartDrawer() {
     cartDrawerEl.classList.remove('open');
