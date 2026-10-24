@@ -14,12 +14,8 @@
             document.getElementById('checkoutSummary').innerHTML = '<p>Não foi possível carregar o carrinho.</p>';
             return;
         }
-        registerProducts(PRODUCTS);
         initCartDrawer(PRODUCTS);
         await renderSummary();
-
-        const lines = getCartEntries().length;
-        if (lines > 0) track('begin_checkout', { lines });   // once per visit, not on every cart change
     });
 
     function getCartEntries() {
@@ -97,7 +93,6 @@
 
         try {
             const data = await createOrder({ items, customer });
-            track('order_placed', { lines: items.length });
             // Order placed — clear the cart and show confirmation
             cart = {};
             saveCart(cart);

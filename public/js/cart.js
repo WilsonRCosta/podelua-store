@@ -2,18 +2,6 @@
 const CART_KEY = 'podelua-cart-v1';
 const MAX_QTY_PER_LINE = 3;
 
-function track(name, data) {
-    try { if (window.va) window.va('event', { name, data }); } catch (e) {}
-}
-
-// Lets cart.js turn an id into a readable name for analytics
-function registerProducts(list) {
-    window.PRODUCT_NAMES = Object.fromEntries(list.map((p) => [p.id, p.name]));
-}
-function productName(id) {
-    return (window.PRODUCT_NAMES && window.PRODUCT_NAMES[id]) || id;
-}
-
 function loadCart() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || {}; }
     catch (e) { return {}; }
@@ -56,8 +44,9 @@ function addToCart(id, color, showFeedback = true, customValues = []) {
     saveCart(cart);
     if (typeof renderCart === 'function') renderCart();
     if (typeof onCartChanged === 'function') onCartChanged();
-    track('add_to_cart', { product: productName(id), color: color || 'default' });
-    if (showFeedback) showToast('Adicionado ao carrinho');
+    if (showFeedback && typeof showToast === 'function') {
+        showToast('Adicionado ao carrinho');
+    }
 }
 
 function incrCart(key) {
@@ -82,10 +71,8 @@ function decrCart(key) {
 }
 
 function removeFromCart(key) {
-    const line = cart[key];          // read it before deleting
     delete cart[key];
     saveCart(cart);
-    if (line) track('remove_from_cart', { product: productName(line.id) });
     if (typeof renderCart === 'function') renderCart();
     if (typeof onCartChanged === 'function') onCartChanged();
 }
