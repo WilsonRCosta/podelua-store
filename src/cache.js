@@ -16,6 +16,13 @@ function createCache(loader, ttlMs = cacheTtlMs) {
           fetchedAt = Date.now();
           return result;
         })
+        .catch((err) => {
+          if (data) {
+            console.warn('[cache] refresh failed, serving stale:', err.message);
+            return data;
+          }
+          throw err;
+        })
         .finally(() => {
           pending = null;
         });

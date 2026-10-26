@@ -1,11 +1,33 @@
+document.addEventListener('error', (e) => {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement)) return;
+
+  const tries = Number(img.dataset.tries || 0);
+  if (tries === 0 && img.src.includes('/api/img/')) {
+    img.dataset.tries = '1';
+    const sep = img.src.includes('?') ? '&' : '?';
+    setTimeout(() => { img.src = img.src + sep + 'r=1'; }, 800);
+    return;
+  }
+  if (img.dataset.fallback) return;
+  img.dataset.fallback = '1';
+  img.src = '/images/placeholder.png';
+}, true);
+
 // Renders a swipeable image carousel
 function renderCarousel(product, size = 'card') {
   const images = product.images && product.images.length
       ? product.images
       : [{ url: '/images/placeholder.png', color: null }];
 
+  const full = size === 'large';   // product page: original; grid/cards: thumbnail
+
   const slides = images
-      .map((img) => `<img src="${img.url}" class="carousel-img" alt="${product.name}" loading="lazy" />`)
+      .map((img, i) => {
+        const src = full ? img.url : (img.thumb || img.url);
+        const eager = full && i === 0;   // first image of the product page is above the fold
+        return `<img src="${src}" class="carousel-img" alt="${product.name}" width="800" height="800" loading="${eager ? 'eager' : 'lazy'}" decoding="async"/>`;
+      })
       .join('');
 
   const arrowButtons = images.length > 1 ? `

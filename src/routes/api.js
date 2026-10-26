@@ -17,10 +17,29 @@ const router = express.Router();
 
 router.get('/products', async (req, res) => {
   try {
-    res.json(await getProducts());
+    res.json((await getProducts()).map(toPublic));
   } catch (err) {
     console.error('Airtable fetch error:', err.message);
     res.status(500).json({ error: 'Não foi possível carregar os produtos.' });
+  }
+});
+
+router.get('/img/:productId/:attId', async (req, res) => {
+  try {
+    const product = (await getProductsById()).get(req.params.productId);
+    const img = product?.images.find((i) => i.url.endsWith(`/${req.params.attId}`));
+    if (!img) return res.sendStatus(404);
+
+    const src = req.query.s === 'large' ? img.thumbSourceUrl : img.sourceUrl;
+    const up = await fetch(src, { signal: AbortSignal.timeout(8000) });
+    if (!up.ok) return res.sendStatus(502);
+
+    res.set('Content-Type', up.headers.get('content-type') || 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=86400, s-maxage=31536000, immutable');
+    res.send(Buffer.from(await up.arrayBuffer()));
+  } catch (e) {
+    console.error('Image proxy error:', e.message);
+    res.sendStatus(502);
   }
 });
 
@@ -71,5 +90,9 @@ router.post('/shipping-quote', async (req, res) => {
     res.status(500).json({ error: 'Não foi possível calcular o envio.' });
   }
 });
+
+function toPublic(p) {
+  return { ...p, images: p.images.map(({ url, thumb, color }) => ({ url, thumb, color })) };
+}
 
 module.exports = router;

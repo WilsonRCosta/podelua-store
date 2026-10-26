@@ -23,6 +23,6 @@ module.exports = {
     iban: env.BANK_IBAN,
     holder: env.BANK_HOLDER,
   },
-  cacheTtlMs: 30 * 1000,
+  cacheTtlMs: 5 * 60 * 1000,
   maxQtyPerLine: 3,
 };

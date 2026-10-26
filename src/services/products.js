@@ -17,10 +17,17 @@ function productIdFromName(name) {
 function mapProduct(record) {
   const f = record.fields;
   const colors = (f.colors || '').split(',').map((c) => c.trim()).filter(Boolean);
-  const images = (f.images || []).map((img, i) => ({ url: img.url, color: colors[i] || null }));
+  const id = productIdFromName(f.name);
+  const images = (f.images || []).map((img, i) => ({
+    url: `/api/img/${id}/${img.id}`,
+    thumb: `/api/img/${id}/${img.id}?s=large`,
+    sourceUrl: img.url,
+    thumbSourceUrl: img.thumbnails?.large?.url || img.url,
+    color: colors[i] || null,
+  }));
 
   return {
-    id: productIdFromName(f.name),
+    id: id,
     name: f.name,
     categories: f.categories || [],
     price: f.price,

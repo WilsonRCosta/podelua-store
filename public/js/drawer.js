@@ -69,7 +69,7 @@ function renderCart() {
             return `
         <div class="cart-line">
           <div class="cart-line-art">
-            <img src="${displayImg?.url || '/images/placeholder.png'}" alt="${p.name}" />
+            <img src="${displayImg?.thumb || displayImg?.url || '/images/placeholder.png'}" alt="${p.name}" loading="lazy" decoding="async" />          
           </div>
           <div class="cart-line-info">
             <h4>${p.name}</h4>
