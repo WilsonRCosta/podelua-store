@@ -17,7 +17,9 @@ const router = express.Router();
 
 router.get('/products', async (req, res) => {
   try {
-    res.json((await getProducts()).map(toPublic));
+    const products = (await getProducts()).map(toPublic);
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=1800, stale-while-revalidate=3600');
+    res.json(products);
   } catch (err) {
     console.error('Airtable fetch error:', err.message);
     res.status(500).json({ error: 'Não foi possível carregar os produtos.' });

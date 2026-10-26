@@ -22,7 +22,7 @@ async function fetchQuotas() {
 const getFreshShippingConfig = createCache(async () => {
   const [sizeUnits, quotas] = await Promise.all([fetchSizeUnitsMap(), fetchQuotas()]);
   return { sizeUnits, quotas };
-});
+}, 24 * 60 * 60 * 1000);   // 24 h
 
 // Falls back to the last known config (or an empty one) so a flaky Airtable doesn't block checkout.
 async function getShippingConfig() {
